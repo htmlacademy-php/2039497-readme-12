@@ -39,11 +39,10 @@ $posts_array = [
         'type' => 'post-link',
         'content' => 'www.htmlacademy.ru',
         'name_user' => 'Владик',
-        'avatar' => 'userpic.jpg'        
+        'avatar' => 'userpic.jpg'
     ]
 ]
 ?>
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -82,7 +81,7 @@ $posts_array = [
         </form>
         <div class="header__nav-wrapper">
             <!-- здесь должен быть PHP код, который показывает следующий тег по условию -->
-			<?php if (1 === $is_auth): ?>
+			<?php if ($is_auth === 1): ?>
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
@@ -261,7 +260,7 @@ $posts_array = [
                                 </p>
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
-                        
+
                         <?php elseif($post['type'] === 'post-link'): ?>
                             <!--содержимое для поста-ссылки-->
                             <div class="post-link__wrapper">
@@ -288,8 +287,7 @@ $posts_array = [
                             <!--содержимое для поста-видео-->
                             <div class="post-video__block">
                                 <div class="post-video__preview">
-                                    <?=embed_youtube_cover(/* вставьте ссылку на видео */$post['contetnt']); ?>
-                                    <img src="img/coast-medium.jpg" alt="Превью к видео" width="360" height="188">
+                                    <?=embed_youtube_cover(/* вставьте ссылку на видео */$post['content']); ?>
                                 </div>
                                 <a href="post-details.html" class="post-video__play-big button">
                                     <svg class="post-video__play-big-icon" width="14" height="14">
