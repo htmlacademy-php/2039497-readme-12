@@ -16,7 +16,12 @@ $posts_array = [
     [
         'header' => 'Игра Престолов',
         'type' => 'post-text',
-        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!',
+        'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!
+        qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
+        qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
+        qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
+        qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
+        qwerty qwerty qwerty qwerty qwerty qwerty qwerty ',
         'name_user' => 'Владик',
         'avatar' => 'userpic.jpg'
     ],
@@ -254,10 +259,8 @@ $posts_array = [
                         <?php if($post['type'] === 'post-quote'): ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
-                                <p>
                                     <!--здесь текст-->
-                                    <?= $post['content']; ?>
-                                </p>
+                                    <?= cut_text_post($post['content']); ?>
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
 
@@ -298,7 +301,7 @@ $posts_array = [
                             </div>
                         <?php elseif($post['type'] === 'post-text'): ?>
                             <!--содержимое для поста-текста-->
-                            <p><!--здесь текст--><?= $post['content']; ?></p>
+                            <!--здесь текст--><?= cut_text_post($post['content']); ?>
                         <?php endif; ?>
                     </div>
                     <footer class="post__footer">
