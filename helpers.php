@@ -271,7 +271,7 @@ function cut_text_post($text, $limit_letters = 300)
     $sum_count_letters = 0;
     $text_array = explode(' ', $text);
 
-    for ($i = 0; $i < count($text_array); $i++) {
+    for ($i = 0, $count = count($text_array); $i < $count; $i++) {
 
         if (($sum_count_letters + mb_strlen($text_array[$i]) + 1) <= ($limit_letters + 1)){
             $sum_count_letters += mb_strlen($text_array[$i]) + 1;

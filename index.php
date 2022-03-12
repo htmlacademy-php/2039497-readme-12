@@ -259,8 +259,10 @@ $posts_array = [
                         <?php if($post['type'] === 'post-quote'): ?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
+                                <p>
                                     <!--здесь текст-->
-                                    <?= cut_text_post($post['content']); ?>
+                                    <?= $post['content']; ?>
+                                </p>
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
 
