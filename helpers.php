@@ -262,3 +262,25 @@ function generate_random_date($index)
 
     return $dt;
 }
+
+/**
+ * Обрезает текстовое содержимое если оно превышает заданное число символов
+ */
+function cut_text_post($text, $limit_letters = 300)
+{
+    $sum_count_letters = 0;
+    $text_array = explode(' ', $text);
+
+    for ($i = 0, $count = count($text_array); $i < $count; $i++) {
+
+        if (($sum_count_letters + mb_strlen($text_array[$i]) + 1) <= ($limit_letters + 1)){
+            $sum_count_letters += mb_strlen($text_array[$i]) + 1;
+            // +1 - это символ пробела, чтобы учитывать все символы после конкатенации элементов массива
+        } else {
+            return '<p>' . implode(' ', array_slice($text_array, 0, $i)) . '...' . '</p>' .
+            '<a class="post-text__more-link" href="#">Читать далее</a>';
+        }
+    }
+
+    return '<p>' . $text . '</p>';
+}
