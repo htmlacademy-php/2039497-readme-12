@@ -14,7 +14,7 @@ $posts_array = [
         'header' => 'Игра Престолов',
         'type' => 'post-text',
         'content' => 'Не могу дождаться начала финального сезона своего любимого сериала!
-        qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
+        qwerty qwerty qwerty <script>alert("test")</script> qwerty qwerty qwerty qwerty qwerty qwerty qwerty
         qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
         qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty
         qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty qwerty

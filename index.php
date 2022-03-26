@@ -1,9 +1,19 @@
 <?php
 require_once 'helpers.php';
-require_once 'data.php';
+require_once 'data/data.php';
 
-
+/**
+ * Переменная из подключаемого файла data/data.php
+ * @var $posts_array
+ */
 $main = include_template("main.php", ["posts_array" => $posts_array]);
+
+/**
+ * Переменные из подключаемого файла data/data.php
+ * @var $is_auth
+ * @var $user_name
+ * @var $title
+ */
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
     "user_name" => $user_name,

@@ -138,7 +138,7 @@
                             </div>
                         <?php elseif($post['type'] === 'post-text'):?>
                             <!--содержимое для поста-текста-->
-                            <!--здесь текст--><?=htmlspecialchars(cut_text_post($post['content']));?>
+                            <!--здесь текст--><?=cut_text_post(htmlspecialchars($post['content']));?>
                         <?php endif;?>
                     </div>
                     <footer class="post__footer">
