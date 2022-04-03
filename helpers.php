@@ -125,6 +125,52 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
 }
 
 /**
+ * Возвращает разницу между текущей и переданной в аргументе датами в формате:
+ * - если до текущего времени прошло меньше 60 минут, то формат будет вида «% минут назад»;
+ * - если до текущего времени прошло больше 60 минут, но меньше 24 часов, то формат будет вида «% часов назад»;
+ * - если до текущего времени прошло больше 24 часов, но меньше 7 дней, то формат будет вида «% дней назад»;
+ * - если до текущего времени прошло больше 7 дней, но меньше 5 недель, то формат будет вида «% недель назад»;
+ * - если до текущего времени прошло больше 5 недель, то формат будет вида «% месяцев назад».
+ * @param DateTime $date
+ * @return string
+ */
+function get_diff_date($date)
+{
+    $current_date = date_create("now");
+    $diff = date_diff($current_date, $date);
+
+    $minutes_count = $diff->i;
+    $hours_count = $diff->h;
+    $days_count = $diff->d;
+    $all_days_count = intval(date_interval_format($diff, "%a"));
+    $months_count = $diff->m;
+    $years_count = $diff->y;
+
+    $weeks_count = floor($all_days_count / 7);
+
+    if (!($years_count || $months_count || $weeks_count || $days_count || $hours_count))
+        return $minutes_count . " " .
+               get_noun_plural_form($minutes_count, 'минута', 'минуты', 'минут')
+               . " " . "назад"; // «% минут назад»
+    if (!($years_count || $months_count || $weeks_count || $days_count))
+        return $hours_count . " " .
+               get_noun_plural_form($hours_count, 'час', 'часа', 'часов')
+               . " " . "назад"; // «% часов назад»
+    if (!($years_count || $months_count || $weeks_count))
+        return $days_count . " " .
+               get_noun_plural_form($all_days_count, 'день', 'дня', 'дней')
+               . " " . "назад"; // «% дней назад»
+    if (!($years_count || $months_count))
+        return $weeks_count . " " .
+               get_noun_plural_form(floor($all_days_count / 7), 'неделя', 'недели', 'недель')
+               . " " . "назад"; // «% недель назад»
+
+    return ($months_count + $years_count*12) . " " .
+           get_noun_plural_form($months_count, 'месяц', 'месяца', 'месяцев')
+           . " " . "назад";     // «% месяцев назад»
+}
+
+/**
  * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
  * @param string $name Путь к файлу шаблона относительно папки templates
  * @param array $data Ассоциативный массив с данными для шаблона

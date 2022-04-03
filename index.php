@@ -2,6 +2,8 @@
 require_once 'helpers.php';
 require_once 'data/data.php';
 
+date_default_timezone_set("Europe/Moscow");
+
 /**
  * Переменная из подключаемого файла data/data.php
  * @var $posts_array
