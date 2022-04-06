@@ -134,40 +134,51 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
  * @param DateTime $date
  * @return string
  */
-function get_diff_date($date)
+function get_diff_date($date) : string
 {
-    $current_date = date_create("now");
+    $current_date = date_create(); // текущая дата
     $diff = date_diff($current_date, $date);
 
     $minutes_count = $diff->i;
     $hours_count = $diff->h;
     $days_count = $diff->d;
-    $all_days_count = intval(date_interval_format($diff, "%a"));
+    $all_days_count = (int)date_interval_format($diff, "%a");
     $months_count = $diff->m;
     $years_count = $diff->y;
 
     $weeks_count = floor($all_days_count / 7);
 
-    if (!($years_count || $months_count || $weeks_count || $days_count || $hours_count))
-        return $minutes_count . " " .
-               get_noun_plural_form($minutes_count, 'минута', 'минуты', 'минут')
-               . " " . "назад"; // «% минут назад»
-    if (!($years_count || $months_count || $weeks_count || $days_count))
-        return $hours_count . " " .
-               get_noun_plural_form($hours_count, 'час', 'часа', 'часов')
-               . " " . "назад"; // «% часов назад»
-    if (!($years_count || $months_count || $weeks_count))
-        return $days_count . " " .
-               get_noun_plural_form($all_days_count, 'день', 'дня', 'дней')
-               . " " . "назад"; // «% дней назад»
-    if (!($years_count || $months_count))
-        return $weeks_count . " " .
-               get_noun_plural_form(floor($all_days_count / 7), 'неделя', 'недели', 'недель')
-               . " " . "назад"; // «% недель назад»
+    $format = "%d %s назад";
 
-    return ($months_count + $years_count*12) . " " .
-           get_noun_plural_form($months_count, 'месяц', 'месяца', 'месяцев')
-           . " " . "назад";     // «% месяцев назад»
+    if (!($years_count || $months_count || $weeks_count || $days_count || $hours_count)) {
+        $result = $minutes_count;
+        $form = get_noun_plural_form($result, 'минута', 'минуты', 'минут');
+
+    } elseif (!($years_count || $months_count || $weeks_count || $days_count)) {
+        $result = $minutes_count/60 >= 0.5 ? $hours_count + 1 : $hours_count;
+        $form = get_noun_plural_form($result, 'час', 'часа', 'часов');
+
+    } elseif (!($years_count || $months_count || $weeks_count)) {
+        $result = ($hours_count + $minutes_count/60)/24 >= 0.5 ? $all_days_count + 1 : $all_days_count;
+        $form = get_noun_plural_form($result, 'день', 'дня', 'дней');
+
+    } elseif (!($years_count || $months_count)) {
+        $all_days_count = $all_days_count + ($hours_count + $minutes_count/60)/24;
+        $result = round($all_days_count / 7);
+        $form = get_noun_plural_form($result, 'неделя', 'недели', 'недель');
+
+    } else {
+        // Посчитаем кол-во дней в текущем месяце
+        $days_in_month_current = cal_days_in_month(CAL_GREGORIAN, (int)$current_date->format('n'), (int)$current_date->format('Y'));
+
+        $months_count = $years_count*12 + $months_count + (
+            $days_count/$days_in_month_current >= 0.5 ? 1 : 0
+        );
+        $result = ($days_count || $hours_count || $minutes_count) ? $months_count + 1 : $months_count;
+        $form = get_noun_plural_form($result, 'месяц', 'месяца', 'месяцев');
+    }
+
+    return sprintf($format, $result, $form);
 }
 
 /**
