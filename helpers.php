@@ -125,6 +125,63 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
 }
 
 /**
+ * Возвращает разницу между текущей и переданной в аргументе датами в формате:
+ * - если до текущего времени прошло меньше 60 минут, то формат будет вида «% минут назад»;
+ * - если до текущего времени прошло больше 60 минут, но меньше 24 часов, то формат будет вида «% часов назад»;
+ * - если до текущего времени прошло больше 24 часов, но меньше 7 дней, то формат будет вида «% дней назад»;
+ * - если до текущего времени прошло больше 7 дней, но меньше 5 недель, то формат будет вида «% недель назад»;
+ * - если до текущего времени прошло больше 5 недель, то формат будет вида «% месяцев назад».
+ * @param DateTime $date
+ * @return string
+ */
+function get_diff_date($date) : string
+{
+    $current_date = date_create(); // текущая дата
+    $diff = date_diff($current_date, $date);
+
+    $minutes_count = $diff->i;
+    $hours_count = $diff->h;
+    $days_count = $diff->d;
+    $all_days_count = (int)date_interval_format($diff, "%a");
+    $months_count = $diff->m;
+    $years_count = $diff->y;
+
+    $weeks_count = floor($all_days_count / 7);
+
+    $format = "%d %s назад";
+
+    if (!($years_count || $months_count || $weeks_count || $days_count || $hours_count)) {
+        $result = $minutes_count;
+        $form = get_noun_plural_form($result, 'минута', 'минуты', 'минут');
+
+    } elseif (!($years_count || $months_count || $weeks_count || $days_count)) {
+        $result = $minutes_count/60 >= 0.5 ? $hours_count + 1 : $hours_count;
+        $form = get_noun_plural_form($result, 'час', 'часа', 'часов');
+
+    } elseif (!($years_count || $months_count || $weeks_count)) {
+        $result = ($hours_count + $minutes_count/60)/24 >= 0.5 ? $all_days_count + 1 : $all_days_count;
+        $form = get_noun_plural_form($result, 'день', 'дня', 'дней');
+
+    } elseif (!($years_count || $months_count)) {
+        $all_days_count = $all_days_count + ($hours_count + $minutes_count/60)/24;
+        $result = round($all_days_count / 7);
+        $form = get_noun_plural_form($result, 'неделя', 'недели', 'недель');
+
+    } else {
+        // Посчитаем кол-во дней в текущем месяце
+        $days_in_month_current = cal_days_in_month(CAL_GREGORIAN, (int)$current_date->format('n'), (int)$current_date->format('Y'));
+
+        $months_count = $years_count*12 + $months_count + (
+            $days_count/$days_in_month_current >= 0.5 ? 1 : 0
+        );
+        $result = ($days_count || $hours_count || $minutes_count) ? $months_count + 1 : $months_count;
+        $form = get_noun_plural_form($result, 'месяц', 'месяца', 'месяцев');
+    }
+
+    return sprintf($format, $result, $form);
+}
+
+/**
  * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
  * @param string $name Путь к файлу шаблона относительно папки templates
  * @param array $data Ассоциативный массив с данными для шаблона

@@ -84,8 +84,9 @@
             </div>
         </div>
         <div class="popular__posts">
-            <?php foreach($posts_array as $post):?>
-                <article class="popular__post post <?= $post['type']; ?>">
+            <?php foreach($posts_array as $idx => $post):?>
+                <?php $date = generate_random_date($idx);?>
+                <article class="popular__post post <?=$post['type'];?>">
                     <header class="post__header">
                         <h2><!--здесь заголовок--><?=htmlspecialchars($post['header']);?></h2>
                     </header>
@@ -150,7 +151,7 @@
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><!--здесь имя пользоателя--><?=$post['name_user'];?></b>
-                                    <time class="post__time" datetime="">дата</time>
+                                    <time class="post__time" datetime="<?=$date;?>" title="<?=date('d.m.Y H:i', strtotime($date));?>"><?=get_diff_date(date_create($date));?></time>
                                 </div>
                             </a>
                         </div>
