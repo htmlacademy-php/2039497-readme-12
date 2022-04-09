@@ -134,7 +134,7 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
  * @param DateTime $date
  * @return string
  */
-function get_diff_date($date) : string
+function get_diff_date(DateTime $date) : string
 {
     $current_date = date_create(); // текущая дата
     $diff = date_diff($current_date, $date);
