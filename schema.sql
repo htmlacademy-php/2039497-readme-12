@@ -1,12 +1,12 @@
 
-CREATE  DATABASE `readme`;
+CREATE DATABASE `readme`;
 USE `readme`;
 
 
 -- Представляет зарегистрированного пользователя.
-CREATE  TABLE `users` (
+CREATE TABLE `users` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `date_create` DATETIME NOT NULL,                      -- дата и время, когда этот пользователь завёл аккаунт
+    `created_at` DATETIME NOT NULL,                      -- дата и время, когда этот пользователь завёл аккаунт
     `email` VARCHAR(128) NOT NULL UNIQUE,
     `login` VARCHAR(64) NOT NULL UNIQUE,
     `password` CHAR(64) NOT NULL,                         -- хэшированный пароль пользователя
@@ -20,8 +20,8 @@ CREATE  TABLE `users` (
 */
 CREATE TABLE `type_content` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `type` VARCHAR(128) NOT NULL,                     -- название (Текст, Цитата, Картинка, Видео, Ссылка)
-    `class_name` VARCHAR(128)                         -- имя класса для иконки (photo, video, text, quote, link)
+    `type` VARCHAR(128) NOT NULL UNIQUE,                     -- название (Текст, Цитата, Картинка, Видео, Ссылка)
+    `class_name` VARCHAR(128) NOT NULL UNIQUE                -- имя класса для иконки (photo, video, text, quote, link)
 );
 
 
@@ -36,9 +36,9 @@ CREATE TABLE `type_content` (
 */
 CREATE TABLE `posts` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `date_create` DATETIME NOT NULL,                           -- дата создания: дата и время, когда этот пост был создан пользователем
+    `created_at` DATETIME NOT NULL,                            -- дата создания: дата и время, когда этот пост был создан пользователем
     `header` TEXT,                                             -- заголовок: задаётся пользователем
-    `content_text` MEDIUMTEXT,                                 -- текстовое содержимое: задаётся пользователем
+    `content_text` TEXT,                                       -- текстовое содержимое: задаётся пользователем
     `author_quote` TEXT,                                       -- автор цитаты: задаётся пользователем
     `content_photo` TEXT,                                      -- изображение: ссылка на сохранённый файл изображения
     `content_video` TEXT,                                      -- видео: ссылка на видео с youtube
@@ -46,9 +46,9 @@ CREATE TABLE `posts` (
     `count_views` INT NOT NULL DEFAULT 0,                      -- число просмотров
     `user_id` INT NOT NULL,
     `type_content_id` INT NOT NULL,
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY (`type_content_id`) REFERENCES `type_content` (`id`),
-    FULLTEXT `ft1` (`header`,`content_text`, `author_quote`)   -- ключ для полнотекстового поиска
+    FOREIGN KEY `user_index` (`user_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY `type_content_index` (`type_content_id`) REFERENCES `type_content` (`id`),
+    FULLTEXT `fulltext_index` (`header`, `content_text`, `author_quote`)   -- ключ для полнотекстового поиска
 );
 
 
@@ -59,7 +59,7 @@ CREATE TABLE `posts` (
 CREATE TABLE `hashtags` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `hashtag` VARCHAR(255),
-    INDEX `hti` (`hashtag`)
+    INDEX `hashtag_index` (`hashtag`)
 );
 
 
@@ -67,8 +67,8 @@ CREATE TABLE `hashtags` (
 CREATE TABLE `posts_hashtag` (
     `post_id` INT NOT NULL,
     `hashtag_id` INT NOT NULL,
-    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
-    FOREIGN KEY (`hashtag_id`) REFERENCES `hashtags` (`id`),
+    FOREIGN KEY `post_index` (`post_id`) REFERENCES `posts` (`id`),
+    FOREIGN KEY `hashtag_index` (`hashtag_id`) REFERENCES `hashtags` (`id`),
     PRIMARY KEY (`post_id`, `hashtag_id`)
 );
 
@@ -82,12 +82,12 @@ CREATE TABLE `posts_hashtag` (
 */
 CREATE TABLE `comments` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `date_create` DATETIME NOT NULL,                 -- дата создания: дата и время создания комментария
-    `comment` TEXT,                                  -- содержимое: задается пользователем
+    `created_at` DATETIME NOT NULL,                           -- дата создания: дата и время создания комментария
+    `comment` TEXT NOT NULL,                                  -- содержимое: задается пользователем
     `user_id` INT NOT NULL,
     `post_id` INT NOT NULL,
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
+    FOREIGN KEY `user_index` (`user_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY `post_index` (`post_id`) REFERENCES `posts` (`id`)
 );
 
 
@@ -103,8 +103,8 @@ CREATE TABLE `likes` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `user_id` INT NOT NULL,
     `post_id` INT NOT NULL,
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
+    FOREIGN KEY `user_index` (`user_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY `post_index` (`post_id`) REFERENCES `posts` (`id`)
 );
 
 
@@ -119,10 +119,10 @@ CREATE TABLE `likes` (
 */
 CREATE TABLE `subscriptions` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `src_user_id` INT NOT NULL,
-    `dst_post_id` INT NOT NULL,
-    FOREIGN KEY (`src_user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY (`dst_post_id`) REFERENCES `users` (`id`)
+    `source_user_id` INT NOT NULL,
+    `destination_post_id` INT NOT NULL,
+    FOREIGN KEY `source_user_index` (`source_user_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY `destination_post_index` (`destination_post_id`) REFERENCES `users` (`id`)
 );
 
 
@@ -136,12 +136,12 @@ CREATE TABLE `subscriptions` (
 */
 CREATE TABLE `messages` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `date_create` DATETIME NOT NULL,                        -- дата создания: дата и время, когда это сообщение написали
-    `message` TEXT NOT NULL,                                -- содержимое: задаётся пользователем
+    `created_at` DATETIME NOT NULL,                        -- дата создания: дата и время, когда это сообщение написали
+    `message` TEXT NOT NULL,                               -- содержимое: задаётся пользователем
     `sender_user_id` INT NOT NULL,
     `receiver_user_id` INT NOT NULL,
-    FOREIGN KEY (`sender_user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY (`receiver_user_id`) REFERENCES `users` (`id`)
+    FOREIGN KEY `sender_user_index` (`sender_user_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY `receiver_user_index` (`receiver_user_id`) REFERENCES `users` (`id`)
 );
 
 
@@ -152,5 +152,5 @@ CREATE TABLE `messages` (
 */
 CREATE TABLE `roles` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `role` VARCHAR(64) NOT NULL
+    `role` VARCHAR(64) NOT NULL UNIQUE
 );
