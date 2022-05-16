@@ -3,11 +3,11 @@
 USE `readme`;
 
 -- список типов контента для поста;
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'post-quote');
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Текст', 'post-text');
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Картинка', 'post-photo');
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Ссылка', 'post-link');
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Видео', 'post-video');
+INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'post-quote'),
+  ('Текст', 'post-text'),
+  ('Картинка', 'post-photo'),
+  ('Ссылка', 'post-link'),
+  ('Видео', 'post-video');
 
 
 -- придумайте пару пользователей;
@@ -30,7 +30,9 @@ INSERT INTO `comments` VALUES (2, DATE_ADD(NOW(), INTERVAL -1 DAY), 'это ко
 
 -- получить список постов с сортировкой по популярности и вместе с именами авторов и типом контента;
 SELECT
-  *
+  `p`.`header`,
+  `u`.`login`,
+  `tc`.`type`
 FROM
   `posts` `p`
   JOIN `users` `u` on `u`.`id` = `p`.`user_id`
@@ -40,7 +42,9 @@ ORDER BY `count_views` DESC;
 
 -- получить список постов для конкретного пользователя;
 SELECT
-  *
+  `p`.`header`,
+  `u`.`login`,
+  `tc`.`type`
 FROM
   `posts` `p`
   JOIN `users` `u` on `u`.`id` = `p`.`user_id`
@@ -50,7 +54,8 @@ WHERE `p`.`user_id` = 1;
 
 -- получить список комментариев для одного поста, в комментариях должен быть логин пользователя;
 SELECT
-  *
+  `c`.`comment`,
+  `u`.`login`
 FROM
   `comments` `c`
   JOIN `posts` `p` on `p`.`id` = `c`.`post_id`
