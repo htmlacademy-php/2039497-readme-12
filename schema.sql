@@ -6,7 +6,7 @@ USE `readme`;
 -- Представляет зарегистрированного пользователя.
 CREATE TABLE `users` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `created_at` DATETIME NOT NULL,                      -- дата и время, когда этот пользователь завёл аккаунт
+    `created_at` DATETIME NOT NULL,                       -- дата и время, когда этот пользователь завёл аккаунт
     `email` VARCHAR(128) NOT NULL UNIQUE,
     `login` VARCHAR(64) NOT NULL UNIQUE,
     `password` CHAR(64) NOT NULL,                         -- хэшированный пароль пользователя
