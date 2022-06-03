@@ -1,15 +1,16 @@
 <?php
 require_once 'config.php';
 require_once 'helpers.php';
+require_once 'functions.php';
 require_once 'data/data.php';
-
 
 
 date_default_timezone_set("Europe/Moscow");
 
 /**
- * Переменная из подключаемого файла data/data.php
+ * Переменные из подключаемого файла data/data.php
  * @var $posts_array
+ * @var $content_type_array
  */
 $main = include_template("main.php", ["posts_array" => $posts_array, "content_type_array" => $content_type_array]);
 
@@ -27,4 +28,4 @@ $layout_content = include_template("layout.php", [
 ]);
 
 print($layout_content);
-?>
+
