@@ -9,21 +9,20 @@ function get_popular_posts(mysqli $link): array {
 
     $sql = "SELECT
                 `p`.`header`,
-                `tc`.`type`,
+                `tc`.`class_name`,
             CASE
-                WHEN `tc`.`type` = 'Цитата'
+                WHEN `tc`.`class_name` = 'quote'
                     THEN `p`.`author_quote`
-                WHEN `tc`.`type` = 'Текст'
+                WHEN `tc`.`class_name` = 'text'
                     THEN `p`.`content_text`
-                WHEN `tc`.`type` = 'Картинка'
+                WHEN `tc`.`class_name` = 'photo'
                     THEN `p`.`content_photo`
-                WHEN `tc`.`type` = 'Ссылка'
+                WHEN `tc`.`class_name` = 'link'
                     THEN `p`.`content_link`
                 ELSE `p`.`content_video`
             END AS `content`,
                 `u`.`login` as `name_user`,
-                `u`.`avatar`,
-                `tc`.`class_name`
+                `u`.`avatar`
             FROM
                 `posts` `p`
                 JOIN `users` `u` on `u`.`id` = `p`.`user_id`
@@ -46,7 +45,7 @@ function get_popular_posts(mysqli $link): array {
  * @param msqli
  * @return array
  */
-function get_all_type_conyent(mysqli $link): array {
+function get_all_type_content(mysqli $link): array {
 
     $sql = "SELECT
         `tc`.`type`,
