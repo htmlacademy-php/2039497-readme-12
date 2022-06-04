@@ -3,16 +3,16 @@
 USE `readme`;
 
 -- список типов контента для поста;
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'post-quote'),
-  ('Текст', 'post-text'),
-  ('Картинка', 'post-photo'),
-  ('Ссылка', 'post-link'),
-  ('Видео', 'post-video');
+INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'quote'),
+  ('Текст', 'text'),
+  ('Картинка', 'photo'),
+  ('Ссылка', 'link'),
+  ('Видео', 'video');
 
 
 -- придумайте пару пользователей;
-INSERT INTO `users` (`created_at`, `email`, `login`, `password`) VALUES (DATE_ADD(NOW(), INTERVAL -30 DAY), 'ivanov@example.com', 'ivanov', MD5('password123'));
-INSERT INTO `users` (`created_at`, `email`, `login`, `password`) VALUES (DATE_ADD(NOW(), INTERVAL -5 DAY), 'petrov@example.com', 'petrov', MD5('password456'));
+INSERT INTO `users` (`created_at`, `email`, `login`, `password`, `avatar`) VALUES (DATE_ADD(NOW(), INTERVAL -30 DAY), 'ivanov@example.com', 'ivanov', MD5('password123'), 'userpic.jpg');
+INSERT INTO `users` (`created_at`, `email`, `login`, `password`, `avatar`) VALUES (DATE_ADD(NOW(), INTERVAL -5 DAY), 'petrov@example.com', 'petrov', MD5('password456'), 'userpic.jpg');
 
 
 -- существующий список постов.

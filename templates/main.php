@@ -40,59 +40,43 @@
                             <span>Все</span>
                         </a>
                     </li>
+                    <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--photo button" href="#">
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button" href="#">
+                        <?php if($type_content['class_name'] === 'photo'):?>
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
-                                <use xlink:href="#icon-filter-photo"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--video button" href="#">
-                            <span class="visually-hidden">Видео</span>
-                            <svg class="filters__icon" width="24" height="16">
-                                <use xlink:href="#icon-filter-video"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--text button" href="#">
-                            <span class="visually-hidden">Текст</span>
-                            <svg class="filters__icon" width="20" height="21">
-                                <use xlink:href="#icon-filter-text"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--quote button" href="#">
+                        <?php elseif($type_content['class_name'] === 'quote'):?>
                             <span class="visually-hidden">Цитата</span>
                             <svg class="filters__icon" width="21" height="20">
-                                <use xlink:href="#icon-filter-quote"></use>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--link button" href="#">
+                        <?php elseif($type_content['class_name'] === 'link'):?>
                             <span class="visually-hidden">Ссылка</span>
                             <svg class="filters__icon" width="21" height="18">
-                                <use xlink:href="#icon-filter-link"></use>
+                        <?php elseif($type_content['class_name'] === 'video'):?>
+                            <span class="visually-hidden">Видео</span>
+                            <svg class="filters__icon" width="24" height="16">
+                        <?php elseif($type_content['class_name'] === 'text'):?>
+                            <span class="visually-hidden">Текст</span>
+                            <svg class="filters__icon" width="20" height="21">
+                        <?php endif;?>
+                            <use xlink:href="#icon-filter-<?=$type_content['class_name'];?>"></use>
                             </svg>
                         </a>
                     </li>
+                    <?php endforeach;?>
                 </ul>
             </div>
         </div>
         <div class="popular__posts">
             <?php foreach($posts_array as $idx => $post):?>
                 <?php $date = generate_random_date($idx);?>
-                <article class="popular__post post <?=$post['type'];?>">
+                <article class="popular__post post post-<?=$post['class_name'];?>">
                     <header class="post__header">
                         <h2><!--здесь заголовок--><?=htmlspecialchars($post['header']);?></h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
-                        <?php if($post['type'] === 'post-quote'):?>
+                        <?php if($post['class_name'] === 'quote'):?>
                             <!--содержимое для поста-цитаты-->
                             <blockquote>
                                 <p>
@@ -102,7 +86,7 @@
                                 <cite>Неизвестный Автор</cite>
                             </blockquote>
 
-                        <?php elseif($post['type'] === 'post-link'):?>
+                        <?php elseif($post['class_name'] === 'link'):?>
                             <!--содержимое для поста-ссылки-->
                             <div class="post-link__wrapper">
                                 <a class="post-link__external" href="http://" title="Перейти по ссылке">
@@ -118,13 +102,13 @@
                                 </a>
                             </div>
 
-                        <?php elseif($post['type'] === 'post-photo'):?>
+                        <?php elseif($post['class_name'] === 'photo'):?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
                                 <img src="img/<?=$post['content'];?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
 
-                        <?php elseif($post['type'] === 'post-video'): ?>
+                        <?php elseif($post['class_name'] === 'video'): ?>
                             <!--содержимое для поста-видео-->
                             <div class="post-video__block">
                                 <div class="post-video__preview">
@@ -137,7 +121,7 @@
                                     <span class="visually-hidden">Запустить проигрыватель</span>
                                 </a>
                             </div>
-                        <?php elseif($post['type'] === 'post-text'):?>
+                        <?php elseif($post['class_name'] === 'text'):?>
                             <!--содержимое для поста-текста-->
                             <!--здесь текст--><?=cut_text_post(htmlspecialchars($post['content']));?>
                         <?php endif;?>
