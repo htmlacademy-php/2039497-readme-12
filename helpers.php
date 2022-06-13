@@ -132,9 +132,10 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
  * - если до текущего времени прошло больше 7 дней, но меньше 5 недель, то формат будет вида «% недель назад»;
  * - если до текущего времени прошло больше 5 недель, то формат будет вида «% месяцев назад».
  * @param DateTime $date
+ * @param string $format
  * @return string
  */
-function get_diff_date(DateTime $date, $format = "%d %s назад") : string
+function get_diff_date(DateTime $date, string $format = "%d %s назад") : string
 {
     $current_date = date_create(); // текущая дата
     $diff = date_diff($current_date, $date);
@@ -147,8 +148,6 @@ function get_diff_date(DateTime $date, $format = "%d %s назад") : string
     $years_count = $diff->y;
 
     $weeks_count = floor($all_days_count / 7);
-
-    //$format = "%d %s назад";
 
     if (!($years_count || $months_count || $weeks_count || $days_count || $hours_count)) {
         $result = $minutes_count;
@@ -322,8 +321,12 @@ function generate_random_date($index)
 
 /**
  * Обрезает текстовое содержимое если оно превышает заданное число символов
+ * @param string $text
+ * @param int $id
+ * @param int $limit_letters
+ * @return string
  */
-function cut_text_post($text, $id, $limit_letters = 300)
+function cut_text_post(string $text, int $id, int $limit_letters = 300): string
 {
     $sum_count_letters = 0;
     $text_array = explode(' ', $text);
