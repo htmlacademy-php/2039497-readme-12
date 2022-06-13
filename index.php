@@ -7,6 +7,8 @@ require_once 'data/data.php';
 
 date_default_timezone_set("Europe/Moscow");
 
+$class_main = "page__main--popular";
+
 /**
  * Переменные из подключаемого файла data/data.php
  * @var $posts_array
@@ -24,7 +26,8 @@ $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
     "user_name" => $user_name,
     "title" => $title,
-    "main" => $main
+    "main" => $main,
+    "class_main" => $class_main
 ]);
 
 print($layout_content);

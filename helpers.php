@@ -134,7 +134,7 @@ function get_noun_plural_form(int $number, string $one, string $two, string $man
  * @param DateTime $date
  * @return string
  */
-function get_diff_date(DateTime $date) : string
+function get_diff_date(DateTime $date, $format = "%d %s назад") : string
 {
     $current_date = date_create(); // текущая дата
     $diff = date_diff($current_date, $date);
@@ -148,7 +148,7 @@ function get_diff_date(DateTime $date) : string
 
     $weeks_count = floor($all_days_count / 7);
 
-    $format = "%d %s назад";
+    //$format = "%d %s назад";
 
     if (!($years_count || $months_count || $weeks_count || $days_count || $hours_count)) {
         $result = $minutes_count;
@@ -323,7 +323,7 @@ function generate_random_date($index)
 /**
  * Обрезает текстовое содержимое если оно превышает заданное число символов
  */
-function cut_text_post($text, $limit_letters = 300)
+function cut_text_post($text, $id, $limit_letters = 300)
 {
     $sum_count_letters = 0;
     $text_array = explode(' ', $text);
@@ -335,7 +335,7 @@ function cut_text_post($text, $limit_letters = 300)
             // +1 - это символ пробела, чтобы учитывать все символы после конкатенации элементов массива
         } else {
             return '<p>' . implode(' ', array_slice($text_array, 0, $i)) . '...' . '</p>' .
-            '<a class="post-text__more-link" href="#">Читать далее</a>';
+            '<a class="post-text__more-link" href="post.php?id=' . $id . '">Читать далее</a>';
         }
     }
 

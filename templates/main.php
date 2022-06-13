@@ -1,4 +1,4 @@
-<div class="container">
+    <div class="container">
         <h1 class="page__title page__title--popular">Популярное</h1>
     </div>
     <div class="popular container">
@@ -36,13 +36,13 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all filters__button--active" href="#">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=getClass('type_post');?>" href="index.php">
                             <span>Все</span>
                         </a>
                     </li>
-                    <?php foreach($content_type_array as $type_content):?>
+                    <?php foreach($content_type_array as $id => $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button" href="#">
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=getClass('type_post', $id+1);?>" href="?type_post=<?=$id+1;?>">
                         <?php if($type_content['class_name'] === 'photo'):?>
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
@@ -72,7 +72,7 @@
                 <?php $date = generate_random_date($idx);?>
                 <article class="popular__post post post-<?=$post['class_name'];?>">
                     <header class="post__header">
-                        <h2><!--здесь заголовок--><?=htmlspecialchars($post['header']);?></h2>
+                        <h2><!--здесь заголовок--><a href="post.php?id=<?=$post['id'];?>"><?=htmlspecialchars($post['header']);?></a></h2>
                     </header>
                     <div class="post__main">
                         <!--здесь содержимое карточки-->
@@ -83,7 +83,7 @@
                                     <!--здесь текст-->
                                     <?=htmlspecialchars($post['content']);?>
                                 </p>
-                                <cite>Неизвестный Автор</cite>
+                                <cite><?=htmlspecialchars($post['author']);?></cite>
                             </blockquote>
 
                         <?php elseif($post['class_name'] === 'link'):?>
@@ -123,7 +123,7 @@
                             </div>
                         <?php elseif($post['class_name'] === 'text'):?>
                             <!--содержимое для поста-текста-->
-                            <!--здесь текст--><?=cut_text_post(htmlspecialchars($post['content']));?>
+                            <!--здесь текст--><?=cut_text_post(htmlspecialchars($post['content']), $post['id']);?>
                         <?php endif;?>
                     </div>
                     <footer class="post__footer">
