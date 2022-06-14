@@ -1,5 +1,5 @@
 <div class="container">
-    <h1 class="page__title page__title--publication"><?=$post['header'];?></h1>
+    <h1 class="page__title page__title--publication"><?=htmlspecialchars($post['header']);?></h1>
     <section class="post-details">
       <h2 class="visually-hidden">Публикация</h2>
       <div class="post-details__wrapper post-<?=$post['class_name'];?>">
@@ -9,9 +9,9 @@
         <div class="post__main">
             <blockquote>
             <p>
-                <?=$post['content'];?>
+                <?=htmlspecialchars($post['content']);?>
             </p>
-            <cite><?=$post['author'];?></cite>
+            <cite><?=htmlspecialchars($post['author']);?></cite>
             </blockquote>
         </div>
         </div>
@@ -20,7 +20,7 @@
         <div class="post-details__image-wrapper post-text">
         <div class="post__main">
             <p>
-            <?=$post['content'];?>
+                <?=htmlspecialchars($post['content']);?>
             </p>
         </div>
         </div>

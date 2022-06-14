@@ -2,10 +2,10 @@
 require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
-require_once 'data/data.php';
+require_once 'data/data_for_auth.php';
 
 
-date_default_timezone_set("Europe/Moscow");
+
 
 if (isset($_GET['id']) and isset_post($link, $_GET['id'])) {
 
@@ -24,7 +24,7 @@ if (isset($_GET['id']) and isset_post($link, $_GET['id'])) {
                             ]);
 
     /**
-     * Переменные из подключаемого файла data/data.php
+     * Переменные из подключаемого файла data/data_for_auth.php
      * @var $is_auth
      * @var $user_name
      * @var $title

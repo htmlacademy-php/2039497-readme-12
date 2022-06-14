@@ -2,22 +2,24 @@
 require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
-require_once 'data/data.php';
+require_once 'data/data_for_auth.php';
 
 
-date_default_timezone_set("Europe/Moscow");
 
+
+if (isset($_GET['type_post'])) {
+    $posts_array = get_popular_posts($link, $_GET['type_post']);
+} else {
+    $posts_array = get_popular_posts($link);
+}
+
+$content_type_array = get_all_type_content($link);
 $class_main = "page__main--popular";
 
-/**
- * Переменные из подключаемого файла data/data.php
- * @var $posts_array
- * @var $content_type_array
- */
 $main = include_template("main.php", ["posts_array" => $posts_array, "content_type_array" => $content_type_array]);
 
 /**
- * Переменные из подключаемого файла data/data.php
+ * Переменные из подключаемого файла data/data_for_auth.php
  * @var $is_auth
  * @var $user_name
  * @var $title

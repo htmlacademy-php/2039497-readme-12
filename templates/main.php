@@ -36,13 +36,13 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=getClass('type_post');?>" href="index.php">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=getClass();?>" href="index.php">
                             <span>Все</span>
                         </a>
                     </li>
-                    <?php foreach($content_type_array as $id => $type_content):?>
+                    <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=getClass('type_post', $id+1);?>" href="?type_post=<?=$id+1;?>">
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=getClass($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
                         <?php if($type_content['class_name'] === 'photo'):?>
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
