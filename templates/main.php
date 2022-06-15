@@ -98,21 +98,21 @@
                                             <h3><!--здесь заголовок--><?=htmlspecialchars($post['header']);?></h3>
                                         </div>
                                     </div>
-                                    <span><!--здесь ссылка--><?=$post['content'];?></span>
+                                    <span><!--здесь ссылка--><?=htmlspecialchars($post['content']);?></span>
                                 </a>
                             </div>
 
                         <?php elseif($post['class_name'] === 'photo'):?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?=$post['content'];?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="img/<?=htmlspecialchars($post['content']);?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
 
                         <?php elseif($post['class_name'] === 'video'): ?>
                             <!--содержимое для поста-видео-->
                             <div class="post-video__block">
                                 <div class="post-video__preview">
-                                    <?=embed_youtube_cover(/* вставьте ссылку на видео */$post['content']);?>
+                                    <?=embed_youtube_cover(/* вставьте ссылку на видео */htmlspecialchars($post['content']));?>
                                 </div>
                                 <a href="post-details.html" class="post-video__play-big button">
                                     <svg class="post-video__play-big-icon" width="14" height="14">
@@ -131,10 +131,10 @@
                             <a class="post__author-link" href="#" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="img/<?=$post['avatar'];?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="img/<?=htmlspecialchars($post['avatar']);?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
-                                    <b class="post__author-name"><!--здесь имя пользоателя--><?=$post['name_user'];?></b>
+                                    <b class="post__author-name"><!--здесь имя пользоателя--><?=htmlspecialchars($post['name_user']);?></b>
                                     <time class="post__time" datetime="<?=$date;?>" title="<?=date('d.m.Y H:i', strtotime($date));?>"><?=get_diff_date(date_create($date));?></time>
                                 </div>
                             </a>
