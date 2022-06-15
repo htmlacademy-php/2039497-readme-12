@@ -18,6 +18,7 @@ INSERT INTO `users` (`created_at`, `email`, `login`, `password`, `avatar`) VALUE
 -- существующий список постов.
 INSERT INTO `posts` VALUES (1, DATE_ADD(NOW(), INTERVAL -12 DAY), 'Это первый пост', 'Первый поcт в блоге заслуживает пары комментариев', '', '', '', '', 2, 1, 2);
 INSERT INTO `posts` VALUES (2, DATE_ADD(NOW(), INTERVAL -2 DAY), 'Это второй пост', 'После первого поста в блоге идет второй пост...', '', '', '', '', 1, 2, 2);
+INSERT INTO `posts` VALUES (3, DATE_ADD(NOW(), INTERVAL -2 DAY), 'Это ТРЕТИЙ пост', 'Какая-то цитата', '', '', '', '', 1, 2, 1);
 
 
 -- придумайте пару комментариев к разным постам;

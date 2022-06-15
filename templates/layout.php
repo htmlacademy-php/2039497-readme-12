@@ -112,8 +112,8 @@
     </div>
 </header>
 
-<section class="page__main page__main--popular">
-    <?=$main?>
+<section class="page__main <?=$class_main;?>">
+    <?=$main;?>
 </section>
 
 <footer class="footer">
