@@ -45,19 +45,19 @@
                     <section class="adding-post__<?=$type_content['class_name'];?> tabs__content <?=get_class_active($type_content['class_name'], "section");?>">
                     <?php if($type_content['class_name'] === 'photo'):?>
                         <h2 class="visually-hidden">Форма добавления фото</h2>
-                        <form class="adding-post__form form" action="add.php" method="post" enctype="multipart/form-data">
+                        <form class="adding-post__form form" action="add.php?type_post=photo" method="post" enctype="multipart/form-data">
                     <?php elseif($type_content['class_name'] === 'video'):?>
                         <h2 class="visually-hidden">Форма добавления видео</h2>
-                        <form class="adding-post__form form" action="add.php" method="post" enctype="multipart/form-data">
+                        <form class="adding-post__form form" action="add.php?type_post=video" method="post" enctype="multipart/form-data">
                     <?php elseif($type_content['class_name'] === 'quote'):?>
                         <h2 class="visually-hidden">Форма добавления цитаты</h2>
-                        <form class="adding-post__form form" action="add.php" method="post">
+                        <form class="adding-post__form form" action="add.php?type_post=quote" method="post">
                     <?php elseif($type_content['class_name'] === 'link'):?>
                         <h2 class="visually-hidden">Форма добавления ссылки</h2>
-                        <form class="adding-post__form form" action="add.php" method="post">
+                        <form class="adding-post__form form" action="add.php?type_post=link" method="post">
                     <?php elseif($type_content['class_name'] === 'text'):?>
                         <h2 class="visually-hidden">Форма добавления текста</h2>
-                        <form class="adding-post__form form" action="add.php" method="post">
+                        <form class="adding-post__form form" action="add.php?type_post=text" method="post">
                     <?php endif;?>
                         <div class="form__text-inputs-wrapper">
                             <div class="form__text-inputs">
