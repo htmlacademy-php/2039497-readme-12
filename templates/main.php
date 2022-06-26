@@ -36,13 +36,13 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=getClass();?>" href="index.php">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?>" href="index.php">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=getClass($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
                         <?php if($type_content['class_name'] === 'photo'):?>
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
@@ -105,7 +105,7 @@
                         <?php elseif($post['class_name'] === 'photo'):?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?=htmlspecialchars($post['content']);?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="<?=htmlspecialchars($post['content']);?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
 
                         <?php elseif($post['class_name'] === 'video'): ?>

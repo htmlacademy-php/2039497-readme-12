@@ -77,14 +77,18 @@ function get_all_type_content(mysqli $link): array {
 /**
  * Функция возвращает класс ссылки в зависимости от наличия get запроса
  * @param string $type_post
+ * @param string $tag
  * @return string
  *
  */
-function getClass(string $type_post = null): string {
+function get_class_active(string $type_post = null, string $tag = null): string {
 
     if (isset($_GET['type_post'])) {
 
         if ($_GET['type_post'] === $type_post) {
+            if ($tag === "section") {
+                return "tabs__content--active";
+            }
             return "filters__button--active";
         }
 
@@ -329,4 +333,242 @@ function get_diff_date(DateTime $date, string $format = "%d %s назад") : st
     }
 
     return sprintf($format, $result, $form);
+}
+
+/**
+ * Валидация тега
+ * @param string $value
+ * @return string
+ */
+function validate_tags($value) {
+
+    $words = explode(" ", $value);
+    $pattern = '/^[[:alnum:]\-]+$/isu'; // считаем, что тег это слово, которое также может содержать цифры и знак -
+
+    foreach ($words as $val) {
+        if (!$val) {
+            return "Каждый тег состоит только из одного слова. Теги разделяются пробелом.";
+        } else {
+            preg_match($pattern, $val, $matches);
+            if (count($matches) === 0) {
+                return "Каждый тег состоит только из одного слова. Теги разделяются пробелом.";
+            }
+        }
+    }
+    return null;
+}
+
+/**
+ * Валидация картинки
+ * @param string $fild
+ * @return string
+ */
+function validate_file_photo($fild) {
+	if (!empty($_FILES[$fild]['name'])) {
+		$tmp_name = $_FILES[$fild]['tmp_name'];
+
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$file_type = finfo_file($finfo, $tmp_name);
+
+        if (!in_array($file_type, ["image/gif", "image/png", "image/jpeg"])) {
+            return 'Картинка должна соответствовать форматам: gif, jpeg, png.';
+        }
+	}
+    return null;
+}
+
+/**
+ * Валидация поля ссылка на картинку
+ * @param string $value
+ * @return string
+ */
+function validate_link_photo($value) {
+    if (filter_var($value, FILTER_VALIDATE_URL) === false) {
+        return "Некорректная ссылка.";
+    }
+    return null;
+}
+
+/**
+ * Валидация поля видео
+ * @param string $value
+ * @return string
+ */
+function validate_video($value) {
+    if (filter_var($value, FILTER_VALIDATE_URL) !== false) {
+        if (gettype(check_youtube_url($value)) === "string") {
+            return check_youtube_url($value);
+        }
+    }
+    return null;
+}
+
+/**
+ * Возвращает класс ошибки для поля, которое некорреткно заполнено
+ * @param array $errors
+ * @param string $field
+ * @return string
+ */
+function get_class_error($errors, $field) {
+    if (isset($errors[$field])) {
+        return "form__input-section--error";
+    }
+    return "";
+}
+
+/**
+ * Возвращает значение поля из запроса
+ * @param string $name
+ * @return string
+ */
+function get_post_val($name) {
+    return filter_input(INPUT_POST, $name);
+}
+
+/**
+ * Возвращает запрос для добавления поста в бд
+ * @param string $type_content
+ * @return string
+ */
+function get_sql_add_post($type_content) : string {
+
+    $sql = "";
+
+    if ($type_content == 'quote') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `author_quote`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?, ?)';
+    } elseif ($type_content == 'text') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    } elseif ($type_content == 'photo') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_photo`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    } elseif ($type_content == 'link') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_link`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    } elseif ($type_content == 'video') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_video`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    }
+
+    return $sql;
+}
+
+/**
+ * Возвращает id поста
+ * @param string $type_content
+ * @return int
+ */
+function get_id_type_post(mysqli $link, string $type_content): int {
+
+    $sql = "SELECT
+                `tc`.`id`
+            FROM
+                `type_content` `tc`
+            WHERE
+                `tc`.`class_name` = '$type_content';";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_assoc($result)['id'];
+}
+
+/**
+ * Зпрос проверку сущетствования тега в бд
+ * @param string $type_content
+ * @return array
+ */
+function isset_hashtag(mysqli $link, string $hashtag) {
+
+    $safe_hashtag = mysqli_real_escape_string($link, $hashtag);
+
+    $sql = "SELECT
+                `h`.`id`
+            FROM
+                `hashtags` `h`
+            WHERE
+                `h`.`hashtag` = '$safe_hashtag';";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_assoc($result);
+}
+
+/**
+ * Возвращает запрос для добавления тега в бд
+ * @return string
+ */
+function get_sql_add_hashtag() {
+    $sql = 'INSERT INTO `hashtags` (`hashtag`) VALUES (?)';
+    return $sql;
+}
+
+/**
+ * Возвращает запрос для добавления записи в бд для связи поста и тега
+ * @return string
+ */
+function get_sql_add_posts_hashtag() : string {
+    $sql = 'INSERT INTO `posts_hashtag` (`post_id`, `hashtag_id`) VALUES (?, ?)';
+    return $sql;
+}
+
+/**
+ * Возвращает список полей, которе необходимо заполнить
+ * @param string $type_content
+ * @return array
+ */
+function get_required_filds($type_content) : array {
+
+    $fields = ["$type_content-heading", $type_content, "$type_content-tags"];
+
+    if ($type_content === 'photo') {
+
+        if (isset($_POST['userpic-file-photo']) || (!isset($_POST['userpic-file-photo']) && (!isset($_POST['photo']) || $_POST['photo'] === ''))) {
+            $key = array_search('photo', $fields);
+            unset($fields[$key]);
+            $fields[] = 'userpic-file-photo';
+        }
+
+    } elseif ($type_content === 'quote') {
+        $fields[] = 'quote-author';
+    }
+
+    return $fields;
+}
+
+/**
+ * Картинку можем загрузить 2 способами, приоритет за локальной картинкой,
+ * поэтому нужно корректно вернуть имя поля, которое ожидаем увидеть в запросе
+ * @param string $type_content
+ * @return string
+ */
+function get_content_field($type_content) : string {
+
+    if ($type_content === 'photo') {
+        if (isset($_POST['userpic-file-photo']) || (!isset($_POST['userpic-file-photo']) && (!isset($_POST['photo']) || $_POST['photo'] === ''))) {
+            return 'userpic-file-photo';
+        }
+        return 'photo';
+    }
+
+    return $type_content;
+}
+
+function get_fild_for_quote($type_content) {
+    if ($type_content === 'quote') {
+        return "author_quote";
+    }
+    return "";
 }
