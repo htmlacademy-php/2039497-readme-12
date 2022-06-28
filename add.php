@@ -14,14 +14,15 @@ $errors = [];
 if (isset($_POST['type-content'])) {
 
     $type_content = $_POST['type-content'];
-    $required = get_required_filds($type_content); // Обазятельные для заполнения поля
+    $required = get_required_fields($type_content); // Обазятельные для заполнения поля
 
-    $post = filter_input_array(INPUT_POST, [       // Данные формы
-        "$type_content-heading" => FILTER_DEFAULT,
+    $prepared_post = ["$type_content-heading" => FILTER_DEFAULT,
         get_content_field($type_content) => FILTER_DEFAULT,
         'quote-author' => FILTER_DEFAULT,
-        "$type_content-tags" => FILTER_DEFAULT],
-        true);
+        "$type_content-tags" => FILTER_DEFAULT
+    ];
+
+    $post = filter_input_array(INPUT_POST, $prepared_post, true); // Данные формы
 
     // Правила валидации полей
     $rules = [
@@ -67,7 +68,7 @@ if (isset($_POST['type-content'])) {
             }
         }
 
-        if (in_array($key, $required) && empty($value)) {
+        if (in_array($key, $required) && empty($value) && ($key !== 'userpic-file-photo')) {
 
             if (strpos($key, "heading")) {
                 $errors[$key] = "Заголовок.<br>Это поле должно быть заполнено.";

@@ -360,20 +360,24 @@ function validate_tags($value) {
 
 /**
  * Валидация картинки
- * @param string $fild
+ * @param string $field
  * @return string
  */
-function validate_file_photo($fild) {
-	if (!empty($_FILES[$fild]['name'])) {
-		$tmp_name = $_FILES[$fild]['tmp_name'];
-
+function validate_file_photo($field) {
+	if (!empty($_FILES[$field]['name'])) {
+		$tmp_name = $_FILES[$field]['tmp_name'];
 		$finfo = finfo_open(FILEINFO_MIME_TYPE);
 		$file_type = finfo_file($finfo, $tmp_name);
 
         if (!in_array($file_type, ["image/gif", "image/png", "image/jpeg"])) {
             return 'Картинка должна соответствовать форматам: gif, jpeg, png.';
         }
-	}
+	} else {
+        // print_r($_FILES);
+        // exit();
+        return "Выберете фото или укажите ссылку из интернета !.";
+
+    }
     return null;
 }
 
@@ -529,7 +533,7 @@ function get_sql_add_posts_hashtag() : string {
  * @param string $type_content
  * @return array
  */
-function get_required_filds($type_content) : array {
+function get_required_fields($type_content) : array {
 
     $fields = ["$type_content-heading", $type_content, "$type_content-tags"];
 
