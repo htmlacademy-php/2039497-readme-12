@@ -14,22 +14,16 @@ $errors = [];
 if (isset($_POST['type-content'])) {
 
     $type_content = $_POST['type-content'];
-    $required = get_required_fields($type_content); // Обазятельные для заполнения поля
-
-    $prepared_post = ["$type_content-heading" => FILTER_DEFAULT,
-        get_content_field($type_content) => FILTER_DEFAULT,
-        'quote-author' => FILTER_DEFAULT,
-        "$type_content-tags" => FILTER_DEFAULT
-    ];
-
-    $post = filter_input_array(INPUT_POST, $prepared_post, true); // Данные формы
+    $required = get_required_fields($type_content);              // Обазятельные для заполнения поля
+    $prepared_post = array_fill_keys(get_prepared_post($type_content), FILTER_DEFAULT);
+    $post = filter_input_array(INPUT_POST, $prepared_post, true); // Данные формы, по сути это и будут обязательные поля, тк по условию обязательны все (только у картинок есть выбор)
 
     // Правила валидации полей
     $rules = [
         "$type_content-tags" => function($value) {
             return validate_tags($value);
         },
-        'userpic-file-photo' => function($value) {
+        'userpic-file-photo' => function() {
             return validate_file_photo('userpic-file-photo');
         },
         'photo' => function($value) {
@@ -95,12 +89,11 @@ if (isset($_POST['type-content'])) {
     }
 
     $errors = array_filter($errors);
-    $post = array_filter($post);    // Уберем лишние поля, например автор цитаты, если пост не цитата
 
     // Если ошибок нет, загружаем файлы и записываем данные в бд
     if (!count($errors)) {
 
-        if (isset($post['userpic-file-photo'])) {
+        if (array_key_exists('userpic-file-photo', $post)) {
 
             $field = 'userpic-file-photo';
 

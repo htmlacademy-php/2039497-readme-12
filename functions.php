@@ -373,8 +373,8 @@ function validate_file_photo($field) {
             return 'Картинка должна соответствовать форматам: gif, jpeg, png.';
         }
 	} else {
-        // print_r($_FILES);
-        // exit();
+        print_r($_FILES);
+        exit();
         return "Выберете фото или укажите ссылку из интернета !.";
 
     }
@@ -570,9 +570,23 @@ function get_content_field($type_content) : string {
     return $type_content;
 }
 
+/**
+ *
+ * @param string $type_content
+ * @return string
+ */
 function get_fild_for_quote($type_content) {
     if ($type_content === 'quote') {
         return "author_quote";
     }
     return "";
+}
+
+/**
+ * Возращается массив полей post запроса
+ * @param string $type_content
+ * @return array
+ */
+function get_prepared_post($type_content) : array {
+    return get_required_fields($type_content);
 }
