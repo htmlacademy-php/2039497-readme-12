@@ -66,7 +66,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                     <label class="adding-post__label form__label" for="photo-url">Ссылка из интернета</label>
                                     <div class="form__input-section <?=get_class_error($errors, 'photo');?>">
-                                        <input class="adding-post__input form__input" id="photo-url" type="text" name="photo" placeholder="Введите ссылку" value="<?=get_post_val('photo');?>">
+                                        <input class="adding-post__input form__input" id="photo-url" type="text" name="photo" placeholder="Введите ссылку" value="<?=htmlspecialchars(get_post_val('photo'));?>">
                                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                         <?=include_template('form_error.php', ['text_error' => $errors['photo'] ?? '']);?>
                                     </div>
@@ -75,7 +75,7 @@
                                     <div class="adding-post__input-wrapper form__input-wrapper">
                                     <label class="adding-post__label form__label" for="video-url">Ссылка youtube <span class="form__input-required">*</span></label>
                                     <div class="form__input-section <?=get_class_error($errors, 'video');?>">
-                                        <input class="adding-post__input form__input" id="video-url" type="text" name="video" placeholder="Введите ссылку" value="<?=get_post_val('video');?>">
+                                        <input class="adding-post__input form__input" id="video-url" type="text" name="video" placeholder="Введите ссылку" value="<?=htmlspecialchars(get_post_val('video'));?>">
                                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                         <?=include_template('form_error.php', ['text_error' => $errors['video'] ?? '']);?>
                                     </div>
@@ -84,7 +84,7 @@
                                     <div class="adding-post__input-wrapper form__textarea-wrapper">
                                     <label class="adding-post__label form__label" for="cite-text">Текст цитаты <span class="form__input-required">*</span></label>
                                     <div class="form__input-section <?=get_class_error($errors, 'quote');?>">
-                                        <textarea class="adding-post__textarea adding-post__textarea--quote form__textarea form__input" id="cite-text" name="quote" placeholder="Текст цитаты"><?=get_post_val('quote');?></textarea>
+                                        <textarea class="adding-post__textarea adding-post__textarea--quote form__textarea form__input" id="cite-text" name="quote" placeholder="Текст цитаты"><?=htmlspecialchars(get_post_val('quote'));?></textarea>
                                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                         <?=include_template('form_error.php', ['text_error' => $errors['quote'] ?? '']);?>
                                     </div>
@@ -92,7 +92,7 @@
                                     <div class="adding-post__textarea-wrapper form__input-wrapper">
                                     <label class="adding-post__label form__label" for="quote-author">Автор <span class="form__input-required">*</span></label>
                                     <div class="form__input-section <?=get_class_error($errors, 'quote-author');?>">
-                                        <input class="adding-post__input form__input" id="quote-author" type="text" name="quote-author" value="<?=get_post_val('quote-author');?>">
+                                        <input class="adding-post__input form__input" id="quote-author" type="text" name="quote-author" value="<?=htmlspecialchars(get_post_val('quote-author'));?>">
                                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                         <?=include_template('form_error.php', ['text_error' => $errors['quote-author'] ?? '']);?>
                                     </div>
@@ -101,7 +101,7 @@
                                     <div class="adding-post__textarea-wrapper form__input-wrapper">
                                     <label class="adding-post__label form__label" for="post-link">Ссылка <span class="form__input-required">*</span></label>
                                     <div class="form__input-section <?=get_class_error($errors, 'link');?>">
-                                        <input class="adding-post__input form__input" id="post-link" type="text" name="link" value="<?=get_post_val('link');?>">
+                                        <input class="adding-post__input form__input" id="post-link" type="text" name="link" value="<?=htmlspecialchars(get_post_val('link'));?>">
                                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                         <?=include_template('form_error.php', ['text_error' => $errors['link'] ?? '']);?>
                                     </div>
@@ -110,7 +110,7 @@
                                     <div class="adding-post__textarea-wrapper form__textarea-wrapper">
                                     <label class="adding-post__label form__label" for="post-text">Текст поста <span class="form__input-required">*</span></label>
                                     <div class="form__input-section <?=get_class_error($errors, 'text');?>">
-                                        <textarea class="adding-post__textarea form__textarea form__input" id="post-text" name="text" placeholder="Введите текст публикации"><?=get_post_val('text');?></textarea>
+                                        <textarea class="adding-post__textarea form__textarea form__input" id="post-text" name="text" placeholder="Введите текст публикации"><?=htmlspecialchars(get_post_val('text'));?></textarea>
                                         <button class="form__error-button button" type="button">!<span class="visually-hidden">Информация об ошибке</span></button>
                                         <?=include_template('form_error.php', ['text_error' => $errors['text'] ?? '']);?>
                                     </div>
