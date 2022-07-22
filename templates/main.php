@@ -36,13 +36,13 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=getClass();?>" href="index.php">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?>" href="index.php">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=getClass($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
                         <?php if($type_content['class_name'] === 'photo'):?>
                             <span class="visually-hidden">Фото</span>
                             <svg class="filters__icon" width="22" height="18">
@@ -98,21 +98,21 @@
                                             <h3><!--здесь заголовок--><?=htmlspecialchars($post['header']);?></h3>
                                         </div>
                                     </div>
-                                    <span><!--здесь ссылка--><?=$post['content'];?></span>
+                                    <span><!--здесь ссылка--><?=htmlspecialchars($post['content']);?></span>
                                 </a>
                             </div>
 
                         <?php elseif($post['class_name'] === 'photo'):?>
                             <!--содержимое для поста-фото-->
                             <div class="post-photo__image-wrapper">
-                                <img src="img/<?=$post['content'];?>" alt="Фото от пользователя" width="360" height="240">
+                                <img src="<?=htmlspecialchars($post['content']);?>" alt="Фото от пользователя" width="360" height="240">
                             </div>
 
                         <?php elseif($post['class_name'] === 'video'): ?>
                             <!--содержимое для поста-видео-->
                             <div class="post-video__block">
                                 <div class="post-video__preview">
-                                    <?=embed_youtube_cover(/* вставьте ссылку на видео */$post['content']);?>
+                                    <?=embed_youtube_cover(/* вставьте ссылку на видео */htmlspecialchars($post['content']));?>
                                 </div>
                                 <a href="post-details.html" class="post-video__play-big button">
                                     <svg class="post-video__play-big-icon" width="14" height="14">
@@ -131,10 +131,10 @@
                             <a class="post__author-link" href="#" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="img/<?=$post['avatar'];?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="img/<?=htmlspecialchars($post['avatar']);?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
-                                    <b class="post__author-name"><!--здесь имя пользоателя--><?=$post['name_user'];?></b>
+                                    <b class="post__author-name"><!--здесь имя пользоателя--><?=htmlspecialchars($post['name_user']);?></b>
                                     <time class="post__time" datetime="<?=$date;?>" title="<?=date('d.m.Y H:i', strtotime($date));?>"><?=get_diff_date(date_create($date));?></time>
                                 </div>
                             </a>

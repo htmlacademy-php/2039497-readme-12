@@ -58,7 +58,7 @@ CREATE TABLE `posts` (
 */
 CREATE TABLE `hashtags` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `hashtag` VARCHAR(255),
+    `hashtag` VARCHAR(255) UNIQUE,
     INDEX `hashtag_index` (`hashtag`)
 );
 

@@ -77,14 +77,18 @@ function get_all_type_content(mysqli $link): array {
 /**
  * Функция возвращает класс ссылки в зависимости от наличия get запроса
  * @param string $type_post
+ * @param string $tag
  * @return string
  *
  */
-function getClass(string $type_post = null): string {
+function get_class_active(string $type_post = null, string $tag = null): string {
 
     if (isset($_GET['type_post'])) {
 
         if ($_GET['type_post'] === $type_post) {
+            if ($tag === "section") {
+                return "tabs__content--active";
+            }
             return "filters__button--active";
         }
 
@@ -329,4 +333,333 @@ function get_diff_date(DateTime $date, string $format = "%d %s назад") : st
     }
 
     return sprintf($format, $result, $form);
+}
+
+/**
+ * Валидация тега
+ * @param string $value
+ * @return string|null
+ */
+function validate_tags($value) {
+
+    $words = explode(" ", $value);
+    $pattern = '/^[[:alpha:]]+$/isu';
+
+    foreach ($words as $val) {
+        if (!$val) {
+            return "Каждый тег состоит только из одного слова. Теги разделяются пробелом.";
+        } else {
+            preg_match($pattern, $val, $matches);
+            if (count($matches) === 0) {
+                return "Каждый тег состоит только из одного слова. Теги разделяются пробелом.";
+            }
+        }
+    }
+    return null;
+}
+
+/**
+ * Валидация картинки
+ * @param string $field
+ * @return string|null
+ */
+function validate_file_photo($field, &$post) {
+
+	if (!empty($_FILES[$field]['name'])) {
+
+		$tmp_name = $_FILES[$field]['tmp_name'];
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$file_type = finfo_file($finfo, $tmp_name);
+
+        $file_name = $_FILES[$field]['name'];
+        $extension = ( new SplFileInfo($file_name) )->getExtension();
+
+        if (!in_array($file_type, ["image/gif", "image/png", "image/jpeg"])  || !in_array($extension, ["jpeg", "png", "gif", "jpg"])) {
+            return 'Картинка должна соответствовать форматам: gif, jpeg, png.';
+        }
+
+        $post[$field] = $file_name;
+
+	} else {
+        return "Выберете фото или укажите ссылку из интернета.";
+
+    }
+
+    return null;
+}
+
+/**
+ * Валидация поля ссылка на картинку
+ * @param string $value
+ * @return string|null
+ */
+function validate_link_photo($value, &$post) {
+
+    if (filter_var($value, FILTER_VALIDATE_URL) === false) {
+        return "Некорректная ссылка.";
+    }
+
+    $image = file_get_contents($value);
+
+    if (!$image) {
+        return "Файл не удалось загрузить.";
+    } else {
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $file_name_tmp = explode("/", $value);
+        $file_name = end($file_name_tmp);
+        $extension = ( new SplFileInfo($file_name) )->getExtension();
+        $path = sys_get_temp_dir();
+
+        file_put_contents($path . $file_name, $image);
+
+        $file_type = finfo_file($finfo, $path . $file_name);
+
+        if (!in_array($file_type, ["image/gif", "image/png", "image/jpeg"]) || !in_array($extension, ["jpeg", "png", "gif", "jpg"])) {
+            unlink($path . $file_name);
+            return 'Картинка должна соответствовать форматам: gif, jpeg, png. И иметь соответствующее расширение.';
+        }
+    }
+
+    $post['photo'] = $file_name;
+
+    return null;
+}
+
+/**
+ * Валидация поля видео
+ * @param string $value
+ * @return string|null
+ */
+function validate_video($value) {
+    if (filter_var($value, FILTER_VALIDATE_URL) !== false) {
+        if (gettype(check_youtube_url($value)) === "string") {
+            return check_youtube_url($value);
+        }
+    }
+    return null;
+}
+
+/**
+ * Возвращает класс ошибки для поля, которое некорреткно заполнено
+ * @param array $errors
+ * @param string $field
+ * @return string
+ */
+function get_class_error($errors, $field) {
+    if (isset($errors[$field])) {
+        return "form__input-section--error";
+    }
+    return "";
+}
+
+/**
+ * Возвращает значение поля из запроса
+ * @param string $name
+ * @return string
+ */
+function get_post_val($name) {
+    return filter_input(INPUT_POST, $name);
+}
+
+/**
+ * Возвращает запрос для добавления поста в бд
+ * @param string $type_content
+ * @return string
+ */
+function get_sql_add_post($type_content) : string {
+
+    $sql = "";
+
+    if ($type_content == 'quote') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `author_quote`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?, ?)';
+    } elseif ($type_content == 'text') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    } elseif ($type_content == 'photo') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_photo`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    } elseif ($type_content == 'link') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_link`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    } elseif ($type_content == 'video') {
+        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_video`, `type_content_id`) VALUES (1, NOW(),
+        ?, ?, ?)';
+    }
+
+    return $sql;
+}
+
+/**
+ * Возвращает id поста
+ * @param string $type_content
+ * @return int
+ */
+function get_id_type_post(mysqli $link, string $type_content): int {
+
+    $safe_type_content = mysqli_real_escape_string($link, $type_content);
+
+    $sql = "SELECT
+                `tc`.`id`
+            FROM
+                `type_content` `tc`
+            WHERE
+                `tc`.`class_name` = '$safe_type_content';";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_assoc($result)['id'];
+}
+
+/**
+ * Зпрос проверку сущетствования тега в бд
+ * @param string $type_content
+ * @return array
+ */
+function isset_hashtag(mysqli $link, string $hashtag) {
+
+    $safe_hashtag = mysqli_real_escape_string($link, $hashtag);
+
+    $sql = "SELECT
+                `h`.`id`
+            FROM
+                `hashtags` `h`
+            WHERE
+                `h`.`hashtag` = '$safe_hashtag';";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_assoc($result);
+}
+
+/**
+ * Возвращает запрос для добавления тега в бд
+ * @return string
+ */
+function get_sql_add_hashtag() {
+    $sql = 'INSERT INTO `hashtags` (`hashtag`) VALUES (?)';
+    return $sql;
+}
+
+/**
+ * Возвращает запрос для добавления записи в бд для связи поста и тега
+ * @return string
+ */
+function get_sql_add_posts_hashtag() : string {
+    $sql = 'INSERT INTO `posts_hashtag` (`post_id`, `hashtag_id`) VALUES (?, ?)';
+    return $sql;
+}
+
+/**
+ * Возвращает список полей, которе необходимо заполнить
+ * @param string $type_content
+ * @return array
+ */
+function get_required_fields($type_content) : array {
+
+    $fields = ["$type_content-heading", $type_content, "$type_content-tags"];
+
+    if ($type_content === 'photo') {
+
+        if (isset($_POST['userpic-file-photo']) || (!isset($_POST['userpic-file-photo']) && (!isset($_POST['photo']) || $_POST['photo'] === ''))) {
+            $key = array_search('photo', $fields);
+            unset($fields[$key]);
+            $fields[] = 'userpic-file-photo';
+        }
+
+    } elseif ($type_content === 'quote') {
+        $fields[] = 'quote-author';
+    }
+
+    return $fields;
+}
+
+/**
+ * Возращается массив полей post-запроса
+ * @param string $type_content
+ * @return array
+ */
+function get_prepared_post($type_content) : array {
+    return get_required_fields($type_content);
+}
+
+/**
+ * Добавляет посты в БД
+ * @param string $type_content
+ * @param array $post_field_filter
+ * @return string
+ */
+function add_post(mysqli $link, string $type_content, array $post_field_filter) : string {
+
+    $stmt = db_get_prepare_stmt($link, get_sql_add_post($type_content), $post_field_filter);
+    $res = mysqli_stmt_execute($stmt);
+
+    if ($res) {
+        return mysqli_insert_id($link);;
+    } else {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+}
+
+/**
+ * Добавляет теги в БД
+ * @param string $tags
+ * @param string $post_id
+ */
+function add_tag(mysqli $link, string $tags, string $post_id) : void {
+
+    foreach(explode(" ", $tags) as $tag) {
+
+        // Тег существует?
+        if (isset_hashtag($link, $tag)) {
+
+            // Заполняем только связующую таблицу
+            $hashtag_id = isset_hashtag($link, $tag)['id'];
+            $stmt = db_get_prepare_stmt($link, get_sql_add_posts_hashtag(), [$post_id, $hashtag_id]);
+            $res = mysqli_stmt_execute($stmt);
+
+            if (!$res) {
+                $error = mysqli_error($link);
+                print("Ошибка MySQL: " . $error);
+                exit();
+            }
+
+        } else {
+            // Добавляем тег
+            $stmt = db_get_prepare_stmt($link, get_sql_add_hashtag(), [$tag]);
+            $res = mysqli_stmt_execute($stmt);
+
+            if ($res) {
+                $hashtag_id = mysqli_insert_id($link); // id добавленного тега
+                // Заполняем связующую таблицу
+                $stmt = db_get_prepare_stmt($link, get_sql_add_posts_hashtag(), [$post_id, $hashtag_id]);
+                $res = mysqli_stmt_execute($stmt);
+
+                if (!$res) {
+                    $error = mysqli_error($link);
+                    print("Ошибка MySQL: " . $error);
+                    exit();
+                }
+
+            } else {
+                $error = mysqli_error($link);
+                print("Ошибка MySQL: " . $error);
+                exit();
+            }
+        }
+    }
 }

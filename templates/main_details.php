@@ -28,13 +28,13 @@
         <!-- пост-ссылка -->
         <div class="post__main">
         <div class="post-link__wrapper">
-            <a class="post-link__external" href="http://<?=$post['content'];?>" title="Перейти по ссылке">
+            <a class="post-link__external" href="<?=htmlspecialchars($post['content']);?>" title="Перейти по ссылке">
             <div class="post-link__info-wrapper">
                 <div class="post-link__icon-wrapper">
-                <img src="https://www.google.com/s2/favicons?domain=<?=$post['content'];?>" alt="Иконка">
+                <img src="https://www.google.com/s2/favicons?domain=vitadental.ru" alt="Иконка">
                 </div>
                 <div class="post-link__info">
-                <h3><?=$post['title'];?></h3>
+                <h3><?=htmlspecialchars($post['header']);?></h3>
                 </div>
             </div>
             </a>
@@ -43,24 +43,24 @@
         <?php elseif($post['class_name'] === 'photo'):?>
         <!-- пост-изображение -->
         <div class="post-details__image-wrapper post-photo__image-wrapper">
-            <img src="<?=$post['content'];?>" alt="Фото от пользователя" width="760" height="507">
+            <img src="<?=htmlspecialchars($post['content']);?>" alt="Фото от пользователя" width="760" height="507">
         </div>
         <?php elseif($post['class_name'] === 'video'):?>
         <!-- пост-видео -->
         <div class="post-details__image-wrapper post-photo__image-wrapper">
-        <?=embed_youtube_video($post['content']);?>
+        <?=embed_youtube_video(htmlspecialchars($post['content']));?>
         </div>
         <?php endif;?>
         <div class="post-details__user user">
           <div class="post-details__user-info user__info">
             <div class="post-details__avatar user__avatar">
               <a class="post-details__avatar-link user__avatar-link" href="#">
-                <img class="post-details__picture user__picture" src="img/<?=$post['avatar'];?>" alt="Аватар пользователя">
+                <img class="post-details__picture user__picture" src="img/<?=htmlspecialchars($post['avatar']);?>" alt="Аватар пользователя">
               </a>
             </div>
             <div class="post-details__name-wrapper user__name-wrapper">
               <a class="post-details__name user__name" href="#">
-                <span><?=$post['name_user'];?></span>
+                <span><?=htmlspecialchars($post['name_user']);?></span>
               </a>
               <time class="post-details__time user__time" datetime="2014-03-20"><?=get_diff_date(date_create($created_at_user), "%d %s на сайте");?></time>
             </div>
