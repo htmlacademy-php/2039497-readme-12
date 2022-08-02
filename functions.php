@@ -663,3 +663,64 @@ function add_tag(mysqli $link, string $tags, string $post_id) : void {
         }
     }
 }
+
+/**
+ * Проверяет существование пользователя в базе и добавляет его, если нету
+ * @param string $errors
+ * @param string $form
+ * @return bool
+ */
+function add_user(mysqli $link, &$errors, $form) : bool {
+
+    $email = mysqli_real_escape_string($link, $form['email']);
+    $login = mysqli_real_escape_string($link, $form['login']);
+    $sql_email = "SELECT id FROM users WHERE email = '$email'";
+    $sql_login = "SELECT id FROM users WHERE login = '$login'";
+    $res_email = mysqli_query($link, $sql_email);
+    $res_login = mysqli_query($link, $sql_login);
+
+    if (mysqli_num_rows($res_email) > 0) {
+        $errors['email'] = 'Пользователь с этим email уже зарегистрирован';
+    } elseif (mysqli_num_rows($res_login) > 0) {
+        $errors['login'] = 'Пользователь с этим login уже зарегистрирован';
+    } elseif ($form['password'] !== $form['password-repeat']) {
+        $errors['password-repeat'] = 'Повтор пароля введен неверно';
+    } else {
+        $password = password_hash($form['password'], PASSWORD_DEFAULT);
+        $avatar = $form['userpic-file'] ? $form['userpic-file'] : "userpic.jpg";
+        $sql = 'INSERT INTO `users` (`created_at`, `email`, `login`, `password`, `avatar`) VALUES (NOW(), ?, ?, ?, ?);';
+        $stmt = db_get_prepare_stmt($link, $sql, [$form['email'], $form['login'], $password, $avatar]);
+        $res = mysqli_stmt_execute($stmt);
+
+        if ($res) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Проверяет аватарку
+ * @param string $field
+ * @return string|null
+ */
+function validate_avatar($field) {
+
+	if (!empty($_FILES[$field]['name'])) {
+
+		$tmp_name = $_FILES[$field]['tmp_name'];
+		$finfo = finfo_open(FILEINFO_MIME_TYPE);
+		$file_type = finfo_file($finfo, $tmp_name);
+
+        $file_name = $_FILES[$field]['name'];
+        $extension = ( new SplFileInfo($file_name) )->getExtension();
+
+        if (!in_array($file_type, ["image/gif", "image/png", "image/jpeg"])  || !in_array($extension, ["jpeg", "png", "gif", "jpg"])) {
+            return 'Аватар должен соответствовать форматам: gif, jpeg, png.';
+        }
+
+	}
+
+    return null;
+}
