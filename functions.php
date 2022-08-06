@@ -666,8 +666,8 @@ function add_tag(mysqli $link, string $tags, string $post_id) : void {
 
 /**
  * Проверяет существование пользователя в базе и добавляет его, если нету
- * @param string $errors
- * @param string $form
+ * @param array $errors
+ * @param array $form
  * @return bool
  */
 function add_user(mysqli $link, &$errors, $form) : bool {
@@ -694,6 +694,10 @@ function add_user(mysqli $link, &$errors, $form) : bool {
 
         if ($res) {
             return true;
+        } else {
+            $error = mysqli_error($link);
+            print("Ошибка MySQL: " . $error);
+            exit();
         }
     }
 
