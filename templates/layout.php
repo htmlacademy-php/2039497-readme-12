@@ -38,12 +38,12 @@
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
-                        <a class="header__page-link header__page-link--active" title="Популярный контент">
+                        <a class="header__page-link <?php echo end(explode('/', $_SERVER['REQUEST_URI'])) === 'popular.php' ? 'header__page-link--active' : '';?>" href="popular.php" title="Популярный контент">
                             <span class="visually-hidden">Популярный контент</span>
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--feed">
-                        <a class="header__page-link" href="feed.html" title="Моя лента">
+                        <a class="header__page-link <?php echo end(explode('/', $_SERVER['REQUEST_URI'])) === 'feed.php' ? 'header__page-link--active' : '';?>" href="feed.php" title="Моя лента">
                             <span class="visually-hidden">Моя лента</span>
                         </a>
                     </li>
@@ -91,7 +91,7 @@
                                     </li>
 
                                     <li class="header__profile-nav-item">
-                                        <a class="header__profile-nav-link" href="#">
+                                        <a class="header__profile-nav-link" href="logout.php">
                           <span class="header__profile-nav-text">
                             Выход
                           </span>

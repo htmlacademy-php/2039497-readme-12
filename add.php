@@ -2,10 +2,16 @@
 require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
-require_once 'data/data_for_auth.php';
 
 
+if (!isset($_SESSION['user'])) {
+    header("Location: /");
+    exit();
+}
 
+$title = "Добавление поста";
+$is_auth = 1;
+$user = $_SESSION['user'];
 
 $content_type_array = get_all_type_content($link);
 $class_main = "page__main--adding-post";
@@ -112,15 +118,9 @@ $main = include_template("main_add.php", [
     "errors" => $errors,
 ]);
 
-/**
-* Переменные из подключаемого файла data/data_for_auth.php
-* @var $is_auth
-* @var $user_name
-* @var $title
-*/
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
-    "user_name" => $user_name,
+    "user_name" => $user['login'],
     "title" => $title,
     "main" => $main,
     "class_main" => $class_main

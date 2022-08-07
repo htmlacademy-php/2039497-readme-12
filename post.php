@@ -2,10 +2,16 @@
 require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
-require_once 'data/data_for_auth.php';
 
 
+if (!isset($_SESSION['user'])) {
+    header("Location: /");
+    exit();
+}
 
+$title = "Пост";
+$is_auth = 1;
+$user = $_SESSION['user'];
 
 if (!isset($_GET['id']) || !isset_post($link, $_GET['id'])) {
     header("HTTP/1.1 404 Not Found");
@@ -27,15 +33,9 @@ $main = include_template("main_details.php", [
                         "created_at_user" => $created_at_user
                         ]);
 
-/**
- * Переменные из подключаемого файла data/data_for_auth.php
- * @var $is_auth
- * @var $user_name
- * @var $title
- */
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
-    "user_name" => $user_name,
+    "user_name" => $user['login'],
     "title" => $title,
     "main" => $main,
     "class_main" => $class_main
