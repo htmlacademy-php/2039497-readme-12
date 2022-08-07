@@ -31,7 +31,26 @@ function get_popular_posts(mysqli $link, string $type_post = null): array {
             END AS `content`,
                 `p`.`author_quote` as `author`,
                 `u`.`login` as `name_user`,
-                `u`.`avatar`
+                `u`.`avatar`,
+                `p`.`created_at`,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `comments` `c`
+                    WHERE
+                        `c`.post_id = `p`.`id`
+                )
+                as count_comment,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `likes` `l`
+                    WHERE
+                        `l`.post_id = `p`.`id`
+                )
+                as count_likes
             FROM
                 `posts` `p`
                 JOIN `users` `u` on `u`.`id` = `p`.`user_id`
@@ -471,20 +490,20 @@ function get_sql_add_post($type_content) : string {
     $sql = "";
 
     if ($type_content == 'quote') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `author_quote`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `author_quote`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?, ?)";
     } elseif ($type_content == 'text') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     } elseif ($type_content == 'photo') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_photo`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_photo`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     } elseif ($type_content == 'link') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_link`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_link`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     } elseif ($type_content == 'video') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_video`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_video`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     }
 
     return $sql;
@@ -599,10 +618,12 @@ function get_prepared_post($type_content) : array {
  * Добавляет посты в БД
  * @param string $type_content
  * @param array $post_field_filter
+ * @param string $user_id
  * @return string
  */
-function add_post(mysqli $link, string $type_content, array $post_field_filter) : string {
+function add_post(mysqli $link, string $type_content, array $post_field_filter, string $user_id) : string {
 
+    array_unshift($post_field_filter, $user_id);
     $stmt = db_get_prepare_stmt($link, get_sql_add_post($type_content), $post_field_filter);
     $res = mysqli_stmt_execute($stmt);
 
@@ -731,7 +752,10 @@ function validate_avatar($field) {
 
 
 /**
- *
+ * Список постов для ленты
+ * @param string $id_user
+ * @param string|null $type_post
+ * @return array
  */
 function get_posts_subscriptions(mysqli $link, string $id_user, string $type_post = null): array {
 

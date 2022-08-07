@@ -135,7 +135,7 @@
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><!--здесь имя пользоателя--><?=htmlspecialchars($post['name_user']);?></b>
-                                    <time class="post__time" datetime="<?=$date;?>" title="<?=date('d.m.Y H:i', strtotime($date));?>"><?=get_diff_date(date_create($date));?></time>
+                                    <time class="post__time" datetime="<?=date('d.m.Y H:i', strtotime($post['created_at']));?>" title="<?=date('d.m.Y H:i', strtotime($post['created_at']));?>"><?=get_diff_date(date_create(date('Y-m-d H:i:s', strtotime($post['created_at']))));?></time>
                                 </div>
                             </a>
                         </div>
@@ -148,14 +148,14 @@
                                     <svg class="post__indicator-icon post__indicator-icon--like-active" width="20" height="17">
                                         <use xlink:href="#icon-heart-active"></use>
                                     </svg>
-                                    <span>0</span>
+                                    <span><?=$post['count_likes'];?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
                                 <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
-                                    <span>0</span>
+                                    <span><?=$post['count_comment'];?></span>
                                     <span class="visually-hidden">количество комментариев</span>
                                 </a>
                             </div>
