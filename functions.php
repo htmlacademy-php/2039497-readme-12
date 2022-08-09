@@ -31,7 +31,26 @@ function get_popular_posts(mysqli $link, string $type_post = null): array {
             END AS `content`,
                 `p`.`author_quote` as `author`,
                 `u`.`login` as `name_user`,
-                `u`.`avatar`
+                `u`.`avatar`,
+                `p`.`created_at`,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `comments` `c`
+                    WHERE
+                        `c`.post_id = `p`.`id`
+                )
+                as count_comment,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `likes` `l`
+                    WHERE
+                        `l`.post_id = `p`.`id`
+                )
+                as count_likes
             FROM
                 `posts` `p`
                 JOIN `users` `u` on `u`.`id` = `p`.`user_id`
@@ -471,20 +490,20 @@ function get_sql_add_post($type_content) : string {
     $sql = "";
 
     if ($type_content == 'quote') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `author_quote`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `author_quote`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?, ?)";
     } elseif ($type_content == 'text') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_text`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     } elseif ($type_content == 'photo') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_photo`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_photo`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     } elseif ($type_content == 'link') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_link`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_link`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     } elseif ($type_content == 'video') {
-        $sql = 'INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_video`, `type_content_id`) VALUES (1, NOW(),
-        ?, ?, ?)';
+        $sql = "INSERT INTO `posts` (`user_id`, `created_at`, `header`, `content_video`, `type_content_id`) VALUES (?, NOW(),
+        ?, ?, ?)";
     }
 
     return $sql;
@@ -599,10 +618,12 @@ function get_prepared_post($type_content) : array {
  * Добавляет посты в БД
  * @param string $type_content
  * @param array $post_field_filter
+ * @param string $user_id
  * @return string
  */
-function add_post(mysqli $link, string $type_content, array $post_field_filter) : string {
+function add_post(mysqli $link, string $type_content, array $post_field_filter, string $user_id) : string {
 
+    array_unshift($post_field_filter, $user_id);
     $stmt = db_get_prepare_stmt($link, get_sql_add_post($type_content), $post_field_filter);
     $res = mysqli_stmt_execute($stmt);
 
@@ -666,8 +687,8 @@ function add_tag(mysqli $link, string $tags, string $post_id) : void {
 
 /**
  * Проверяет существование пользователя в базе и добавляет его, если нету
- * @param string $errors
- * @param string $form
+ * @param array $errors
+ * @param array $form
  * @return bool
  */
 function add_user(mysqli $link, &$errors, $form) : bool {
@@ -694,6 +715,10 @@ function add_user(mysqli $link, &$errors, $form) : bool {
 
         if ($res) {
             return true;
+        } else {
+            $error = mysqli_error($link);
+            print("Ошибка MySQL: " . $error);
+            exit();
         }
     }
 
@@ -724,3 +749,85 @@ function validate_avatar($field) {
 
     return null;
 }
+
+
+/**
+ * Список постов для ленты
+ * @param string $id_user
+ * @param string|null $type_post
+ * @return array
+ */
+function get_posts_subscriptions(mysqli $link, string $id_user, string $type_post = null): array {
+
+    $safe_id_user = mysqli_real_escape_string($link, $id_user);
+    $where = '';
+
+    if (!is_null($type_post)) {
+        $safe_type_post = mysqli_real_escape_string($link, $type_post);
+        $where = "AND `tc`.`class_name` = '$safe_type_post'";
+    }
+
+    $sql = "SELECT
+                `p`.`id`,
+                `p`.`header`,
+                `tc`.`class_name`,
+                `u`.`avatar`,
+                `u`.`login`,
+            CASE
+                WHEN `tc`.`class_name` in ('quote', 'text')
+                    THEN `p`.`content_text`
+                WHEN `tc`.`class_name` = 'photo'
+                    THEN `p`.`content_photo`
+                WHEN `tc`.`class_name` = 'link'
+                    THEN `p`.`content_link`
+                ELSE `p`.`content_video`
+            END AS `content`,
+                `p`.`author_quote` as `author`,
+                `u`.`login` as `name_user`,
+                `u`.`avatar`,
+                `p`.`created_at`,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `comments` `c`
+                    WHERE
+                        `c`.post_id = `p`.`id`
+                )
+                as count_comment,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `likes` `l`
+                    WHERE
+                        `l`.post_id = `p`.`id`
+                )
+                as count_likes
+            FROM
+                `posts` `p`
+                JOIN `users` `u` on `u`.`id` = `p`.`user_id`
+                JOIN `type_content` `tc` on `tc`.`id` = `p`.`type_content_id`
+            WHERE
+                `u`.`id` IN (SELECT
+                                `sb`.`destination_post_id`
+                            FROM
+                                `subscriptions` `sb`
+                            WHERE
+                                `sb`.`source_user_id` = '$safe_id_user'
+                            )
+                $where
+            ORDER BY `count_views` DESC;";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+

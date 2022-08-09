@@ -2,35 +2,52 @@
 require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
-require_once 'data/data_for_auth.php';
 
 
+$title = 'Вход';
+$errors = [];
 
-
-if (isset($_GET['type_post'])) {
-    $posts_array = get_popular_posts($link, $_GET['type_post']);
-} else {
-    $posts_array = get_popular_posts($link);
+if (isset($_SESSION['user'])) {
+    header("Location: feed.php");
+    exit();
 }
 
-$content_type_array = get_all_type_content($link);
-$class_main = "page__main--popular";
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+	$form = $_POST;
+	$required = ['login', 'password'];
 
-$main = include_template("main.php", ["posts_array" => $posts_array, "content_type_array" => $content_type_array]);
+	foreach ($required as $field) {
+	    if (empty($form[$field])) {
+	        $errors[$field] = 'Это поле должно быть заполнено';
+        }
+    }
 
-/**
- * Переменные из подключаемого файла data/data_for_auth.php
- * @var $is_auth
- * @var $user_name
- * @var $title
- */
-$layout_content = include_template("layout.php", [
-    "is_auth" => $is_auth,
-    "user_name" => $user_name,
-    "title" => $title,
-    "main" => $main,
-    "class_main" => $class_main
+	$login = mysqli_real_escape_string($link, $form['login']);
+	$sql = "SELECT * FROM `users` WHERE `login` = '$login'";
+	$res = mysqli_query($link, $sql);
+
+	$user = $res ? mysqli_fetch_array($res, MYSQLI_ASSOC) : null;
+
+	if (!count($errors) and $user) {
+		if (password_verify($form['password'], $user['password'])) {
+			$_SESSION['user'] = $user;
+            $_SESSION['id'] = $user['id'];
+		} else {
+			$errors['password'] = 'Неверный пароль';
+		}
+	} else {
+		$errors['login'] = 'Такой пользователь не найден';
+	}
+
+	if (!count($errors)) {
+        header("Location: feed.php");
+		exit();
+	}
+}
+
+$layout_content = include_template('enter_layout.php', [
+	'title' => $title,
+    'errors' => $errors
 ]);
 
 print($layout_content);
-
