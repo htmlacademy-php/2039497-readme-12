@@ -715,11 +715,12 @@ function add_user(mysqli $link, &$errors, $form) : bool {
 
         if ($res) {
             return true;
-        } else {
-            $error = mysqli_error($link);
-            print("Ошибка MySQL: " . $error);
-            exit();
         }
+
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+
     }
 
     return false;
