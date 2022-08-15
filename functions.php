@@ -715,11 +715,12 @@ function add_user(mysqli $link, &$errors, $form) : bool {
 
         if ($res) {
             return true;
-        } else {
-            $error = mysqli_error($link);
-            print("Ошибка MySQL: " . $error);
-            exit();
         }
+
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+
     }
 
     return false;
@@ -818,6 +819,71 @@ function get_posts_subscriptions(mysqli $link, string $id_user, string $type_pos
                             )
                 $where
             ORDER BY `count_views` DESC;";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+
+/**
+ * Результат поиска по постам
+ * @param string $search
+ * @return array
+ */
+function get_search_posts(mysqli $link, string $search): array {
+
+    $safe_search = mysqli_real_escape_string($link, $search);
+
+    $sql = "SELECT
+                `p`.`id`,
+                `p`.`header`,
+                `tc`.`class_name`,
+                `u`.`avatar`,
+                `u`.`login`,
+            CASE
+                WHEN `tc`.`class_name` in ('quote', 'text')
+                    THEN `p`.`content_text`
+                WHEN `tc`.`class_name` = 'photo'
+                    THEN `p`.`content_photo`
+                WHEN `tc`.`class_name` = 'link'
+                    THEN `p`.`content_link`
+                ELSE `p`.`content_video`
+            END AS `content`,
+                `p`.`author_quote` as `author`,
+                `u`.`login` as `name_user`,
+                `u`.`avatar`,
+                `p`.`created_at`,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `comments` `c`
+                    WHERE
+                        `c`.post_id = `p`.`id`
+                )
+                as count_comment,
+                (
+                    SELECT
+                        COUNT(*) as `count`
+                    FROM
+                        `likes` `l`
+                    WHERE
+                        `l`.post_id = `p`.`id`
+                )
+                as count_likes
+            FROM
+                `posts` `p`
+                JOIN `users` `u` on `u`.`id` = `p`.`user_id`
+                JOIN `type_content` `tc` on `tc`.`id` = `p`.`type_content_id`
+            WHERE
+                MATCH(`p`.`header`, `p`.`content_text`, `p`.`author_quote`) AGAINST('$safe_search');";
 
     $result = mysqli_query($link, $sql);
 

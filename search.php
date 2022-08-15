@@ -1,0 +1,36 @@
+<?php
+require_once 'config.php';
+require_once 'helpers.php';
+require_once 'functions.php';
+
+
+if (!isset($_SESSION['user'])) {
+    header("Location: /");
+    exit();
+}
+
+$id_user = $_SESSION['id'];
+$title = "Страница результатов поиска";
+$is_auth = 1;
+$user = $_SESSION['user'];
+
+$search = $_GET['search'] ?? '';
+$posts_array = [];
+
+if ($search) {
+    $posts_array = get_search_posts($link, $search);
+}
+
+$class_main = "page__main--search-results";
+
+$main = include_template("main_search.php", ["posts_array" => $posts_array, "search" => $search]);
+
+$layout_content = include_template("layout.php", [
+    "is_auth" => $is_auth,
+    "user_name" => $user['login'],
+    "title" => $title,
+    "main" => $main,
+    "class_main" => $class_main
+]);
+
+print($layout_content);
