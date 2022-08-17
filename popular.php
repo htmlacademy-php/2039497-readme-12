@@ -13,20 +13,44 @@ $title = "Популярный контент";
 $is_auth = 1;
 $user = $_SESSION['user'];
 
-if (isset($_GET['type_post'])) {
-    $posts_array = get_popular_posts($link, $_GET['type_post']);
+$cur_page = $_GET['page'] ?? 1;
+$page_items = 2;
+
+if (isset($_GET['type_post']) && $_GET['type_post'] !== "all") {
+
+    $items_count = get_count_popular_posts($link, $_GET['type_post']);
+    $pages_count = ceil($items_count / $page_items);
+    $offset = ((int)$cur_page - 1) * $page_items;
+    $pages = range(1, $pages_count);
+
+    $posts_array = get_popular_posts($link, $page_items, $offset, $_GET['type_post']);
+    $filter_posts = "?type_post=" . $_GET['type_post'];
 } else {
-    $posts_array = get_popular_posts($link);
+
+    $items_count = get_count_popular_posts($link);
+    $pages_count = ceil($items_count / $page_items);
+    $offset = ((int)$cur_page - 1) * $page_items;
+    $pages = range(1, $pages_count);
+
+    $filter_posts = "?type_post=all";
+    $posts_array = get_popular_posts($link, $page_items, $offset);
 }
 
 $content_type_array = get_all_type_content($link);
 $class_main = "page__main--popular";
 
-$main = include_template("main.php", ["posts_array" => $posts_array, "content_type_array" => $content_type_array]);
+$main = include_template("main.php", [
+    "posts_array" => $posts_array,
+    "content_type_array" => $content_type_array,
+    "pages" => $pages,
+    "pages_count" => $pages_count,
+    "cur_page" => $cur_page,
+    "filter_posts" => $filter_posts
+]);
 
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
-    "user_name" => $user['login'],
+    "user" => $user,
     "title" => $title,
     "main" => $main,
     "class_main" => $class_main

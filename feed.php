@@ -10,7 +10,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 $id_user = $_SESSION['id'];
-$title = "Моя лента";
+$title = "readme: моя лента";
 $is_auth = 1;
 $user = $_SESSION['user'];
 
@@ -27,7 +27,7 @@ $main = include_template("main_feed.php", ["posts_array" => $posts_array, "conte
 
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
-    "user_name" => $user['login'],
+    "user" => $user,
     "title" => $title,
     "main" => $main,
     "class_main" => $class_main

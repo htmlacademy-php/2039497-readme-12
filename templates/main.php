@@ -36,31 +36,31 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?>" href="popular.php">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?> <?=get_class_active("all");?>" href="popular.php?type_post=all">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
                         <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
-                        <?php if($type_content['class_name'] === 'photo'):?>
-                            <span class="visually-hidden">Фото</span>
-                            <svg class="filters__icon" width="22" height="18">
-                        <?php elseif($type_content['class_name'] === 'quote'):?>
-                            <span class="visually-hidden">Цитата</span>
-                            <svg class="filters__icon" width="21" height="20">
-                        <?php elseif($type_content['class_name'] === 'link'):?>
-                            <span class="visually-hidden">Ссылка</span>
-                            <svg class="filters__icon" width="21" height="18">
-                        <?php elseif($type_content['class_name'] === 'video'):?>
-                            <span class="visually-hidden">Видео</span>
-                            <svg class="filters__icon" width="24" height="16">
-                        <?php elseif($type_content['class_name'] === 'text'):?>
-                            <span class="visually-hidden">Текст</span>
-                            <svg class="filters__icon" width="20" height="21">
-                        <?php endif;?>
-                            <use xlink:href="#icon-filter-<?=$type_content['class_name'];?>"></use>
-                            </svg>
+                            <?php if($type_content['class_name'] === 'photo'):?>
+                                <span class="visually-hidden">Фото</span>
+                                <svg class="filters__icon" width="22" height="18">
+                            <?php elseif($type_content['class_name'] === 'quote'):?>
+                                <span class="visually-hidden">Цитата</span>
+                                <svg class="filters__icon" width="21" height="20">
+                            <?php elseif($type_content['class_name'] === 'link'):?>
+                                <span class="visually-hidden">Ссылка</span>
+                                <svg class="filters__icon" width="21" height="18">
+                            <?php elseif($type_content['class_name'] === 'video'):?>
+                                <span class="visually-hidden">Видео</span>
+                                <svg class="filters__icon" width="24" height="16">
+                            <?php elseif($type_content['class_name'] === 'text'):?>
+                                <span class="visually-hidden">Текст</span>
+                                <svg class="filters__icon" width="20" height="21">
+                            <?php endif;?>
+                                <use xlink:href="#icon-filter-<?=$type_content['class_name'];?>"></use>
+                                </svg>
                         </a>
                     </li>
                     <?php endforeach;?>
@@ -163,5 +163,9 @@
                     </footer>
                 </article>
             <?php endforeach;?>
+        </div>
+        <div class="popular__page-links">
+            <a class="popular__page-link popular__page-link--prev button button--gray" <?=$cur_page == 1 || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts;?>&page=<?=($cur_page - 1) > 0 ? ($cur_page - 1) : "1"?>">Предыдущая страница</a>
+            <a class="popular__page-link popular__page-link--next button button--gray" <?=$cur_page == $pages_count || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts;?>&page=<?=($cur_page + 1) < $pages_count ? ($cur_page + 1) : "$pages_count"?>">Следующая страница</a>
         </div>
     </div>
