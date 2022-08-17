@@ -12,6 +12,7 @@ if (!isset($_SESSION['user'])) {
 $title = "Популярный контент";
 $is_auth = 1;
 $user = $_SESSION['user'];
+$id_user = $_SESSION['id'];
 
 $cur_page = $_GET['page'] ?? 1;
 $page_items = 2;
@@ -34,6 +35,12 @@ if (isset($_GET['type_post']) && $_GET['type_post'] !== "all") {
 
     $filter_posts = "?type_post=all";
     $posts_array = get_popular_posts($link, $page_items, $offset, $_GET['sorted'] ?? "popular");
+}
+
+if (isset($_GET['like_post']) && !empty($_GET['like_post'])) {
+    add_like($link, $id_user, $_GET['like_post']);
+    header("Location: {$_SERVER['HTTP_REFERER']}");
+    exit();
 }
 
 $sorted = "&sorted=popular";
