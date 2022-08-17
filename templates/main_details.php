@@ -85,7 +85,7 @@
         </div>
         <ul class="post__tags">
             <?php foreach($post['hashtags'] as $hashtag):?>
-                <li><a href="#"><?=$hashtag['hashtag'];?></a></li>
+                <li><a href="search.php?search=<?=htmlspecialchars(urlencode("#") . $hashtag['hashtag']);?>">#<?=$hashtag['hashtag'];?></a></li>
             <?php endforeach;?>
         </ul>
         <?php if((int)$post['count_comment'] !== 0):?>

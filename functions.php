@@ -402,7 +402,7 @@ function get_diff_date(DateTime $date, string $format = "%d %s назад") : st
 function validate_tags($value) {
 
     $words = explode(" ", $value);
-    $pattern = '/^#[[:alpha:]]+$/isu';
+    $pattern = '/^[[:alpha:]]+$/isu';
 
     foreach ($words as $val) {
         if (!$val) {
@@ -1569,4 +1569,71 @@ function isset_user(mysqli $link, string $user_id): bool {
     }
 
     return (bool)mysqli_fetch_assoc($result);
+}
+
+/**
+ * Результат поиска по постам
+ * @param msqli
+ * @param string $search
+ * @return array
+ */
+function get_search_posts_by_tag(mysqli $link, string $search): array {
+
+    $safe_search = mysqli_real_escape_string($link, $search);
+
+    $sql = "SELECT
+                `p`.`id`,
+                `p`.`header`,
+                `tc`.`class_name`,
+                `u`.`avatar`,
+                `u`.`login`,
+            CASE
+                WHEN `tc`.`class_name` IN ('quote', 'text')
+                    THEN `p`.`content_text`
+                WHEN `tc`.`class_name` = 'photo'
+                    THEN `p`.`content_photo`
+                WHEN `tc`.`class_name` = 'link'
+                    THEN `p`.`content_link`
+                ELSE `p`.`content_video`
+            END AS `content`,
+                `p`.`author_quote` AS `author`,
+                `u`.`login` AS `name_user`,
+                `u`.`avatar`,
+                `p`.`created_at`,
+                (
+                    SELECT
+                        COUNT(*) AS `count`
+                    FROM
+                        `comments` `c`
+                    WHERE
+                        `c`.post_id = `p`.`id`
+                )
+                AS count_comment,
+                (
+                    SELECT
+                        COUNT(*) AS `count`
+                    FROM
+                        `likes` `l`
+                    WHERE
+                        `l`.post_id = `p`.`id`
+                )
+                AS count_likes
+            FROM
+                `posts` `p`
+                JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
+                JOIN `type_content` `tc` ON `tc`.`id` = `p`.`type_content_id`
+                JOIN `posts_hashtag` `ph` ON `ph`.`post_id` = `p`.`id`
+                JOIN `hashtags` `h` ON `h`.`id` = `ph`.`hashtag_id`
+            WHERE
+                `h`.`hashtag` = '$safe_search';";
+
+    $result = mysqli_query($link, $sql);
+
+    if (!$result) {
+        $error = mysqli_error($link);
+        print("Ошибка MySQL: " . $error);
+        exit();
+    }
+
+    return mysqli_fetch_all($result, MYSQLI_ASSOC);
 }
