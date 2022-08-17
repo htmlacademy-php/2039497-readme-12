@@ -170,7 +170,7 @@
                     </div>
                     <ul class="post__tags">
                         <?php foreach($post['hashtags'] as $hashtag):?>
-                            <li><a href="#">#<?=$hashtag['hashtag'];?></a></li>
+                            <li><a href="#">#<?=htmlspecialchars($hashtag['hashtag']);?></a></li>
                         <?php endforeach;?>
                     </ul>
                 </footer>
@@ -187,18 +187,18 @@
                             <li class="comments__item user">
                             <div class="comments__avatar">
                             <a class="user__avatar-link" href="#">
-                                <img class="comments__picture" src="uploads/<?=$comment['avatar'];?>" alt="Аватар пользователя">
+                                <img class="comments__picture" src="uploads/<?=htmlspecialchars($comment['avatar']);?>" alt="Аватар пользователя">
                             </a>
                             </div>
                             <div class="comments__info">
                             <div class="comments__name-wrapper">
                                 <a class="comments__user-name" href="#">
-                                <span><?=$comment['login'];?></span>
+                                <span><?=htmlspecialchars($comment['login']);?></span>
                                 </a>
                                 <time class="comments__time" datetime="<?=date('d.m.Y H:i', strtotime($comment['created_at']));?>"><?=get_diff_date(date_create(date('Y-m-d H:i:s', strtotime($comment['created_at']))));?></time>
                             </div>
                             <p class="comments__text">
-                                <?=$comment['comment'];?>
+                                <?=htmlspecialchars($comment['comment']);?>
                             </p>
                             </div>
                         </li>
@@ -251,12 +251,12 @@
                 <div class="post-mini__user-info user__info">
                     <div class="post-mini__avatar user__avatar">
                         <a class="user__avatar-link" href="profile.php?id=<?=$like['user_id'];?>">
-                            <img class="post-mini__picture user__picture" src="uploads/<?=$like['avatar'];?>" alt="Аватар пользователя">
+                            <img class="post-mini__picture user__picture" src="uploads/<?=htmlspecialchars($like['avatar']);?>" alt="Аватар пользователя">
                         </a>
                     </div>
                     <div class="post-mini__name-wrapper user__name-wrapper">
                         <a class="post-mini__name user__name" href="profile.php?id=<?=$like['user_id'];?>">
-                            <span><?=$like['login'];?></span>
+                            <span><?=htmlspecialchars($like['login']);?></span>
                         </a>
                         <div class="post-mini__action">
                             <span class="post-mini__activity user__additional">Лайкнул публикацию</span>
@@ -327,12 +327,12 @@
                 <div class="post-mini__user-info user__info">
                     <div class="post-mini__avatar user__avatar">
                     <a class="user__avatar-link" href="profile.php?id=<?=$subscriber['id'];?>">
-                        <img class="post-mini__picture user__picture" src="uploads/<?=$subscriber['avatar'];?>" alt="Аватар пользователя">
+                        <img class="post-mini__picture user__picture" src="uploads/<?=htmlspecialchars($subscriber['avatar']);?>" alt="Аватар пользователя">
                     </a>
                     </div>
                     <div class="post-mini__name-wrapper user__name-wrapper">
                     <a class="post-mini__name user__name" href="profile.php?id=<?=$subscriber['id'];?>">
-                        <span><?=$subscriber['login'];?></span>
+                        <span><?=htmlspecialchars($subscriber['login']);?></span>
                     </a>
                     <time class="post-mini__time user__additional" datetime="<?=date('d.m.Y H:i', strtotime($subscriber['created_at']));?>"><?=get_diff_date(date_create(date('Y-m-d H:i:s', strtotime($subscriber['created_at']))), "%d %s на сайте");?></time>
                     </div>

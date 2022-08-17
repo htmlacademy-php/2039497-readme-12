@@ -101,18 +101,18 @@
                         <li class="comments__item user">
                         <div class="comments__avatar">
                         <a class="user__avatar-link" href="#">
-                            <img class="comments__picture" src="uploads/<?=$comment['avatar'];?>" alt="Аватар пользователя">
+                            <img class="comments__picture" src="uploads/<?=htmlspecialchars($comment['avatar']);?>" alt="Аватар пользователя">
                         </a>
                         </div>
                         <div class="comments__info">
                         <div class="comments__name-wrapper">
                             <a class="comments__user-name" href="#">
-                            <span><?=$comment['login'];?></span>
+                            <span><?=htmlspecialchars($comment['login']);?></span>
                             </a>
                             <time class="comments__time" datetime="<?=date('d.m.Y H:i', strtotime($comment['created_at']));?>"><?=get_diff_date(date_create(date('Y-m-d H:i:s', strtotime($comment['created_at']))));?></time>
                         </div>
                         <p class="comments__text">
-                            <?=$comment['comment'];?>
+                            <?=htmlspecialchars($comment['comment']);?>
                         </p>
                         </div>
                     </li>
