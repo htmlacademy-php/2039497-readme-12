@@ -170,7 +170,7 @@
                     </div>
                     <ul class="post__tags">
                         <?php foreach($post['hashtags'] as $hashtag):?>
-                            <li><a href="#">#<?=htmlspecialchars($hashtag['hashtag']);?></a></li>
+                            <li><a href="#"><?=htmlspecialchars($hashtag['hashtag']);?></a></li>
                         <?php endforeach;?>
                     </ul>
                 </footer>

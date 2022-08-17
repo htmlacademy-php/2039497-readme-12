@@ -402,7 +402,7 @@ function get_diff_date(DateTime $date, string $format = "%d %s назад") : st
 function validate_tags($value) {
 
     $words = explode(" ", $value);
-    $pattern = '/^[[:alpha:]]+$/isu';
+    $pattern = '/^#[[:alpha:]]+$/isu';
 
     foreach ($words as $val) {
         if (!$val) {
