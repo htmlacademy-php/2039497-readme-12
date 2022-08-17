@@ -860,7 +860,16 @@ function get_posts_subscriptions(mysqli $link, string $id_user, string $type_pos
                     WHERE
                         `l`.post_id = `p`.`id`
                 )
-                AS count_likes
+                AS count_likes,
+                (
+                    SELECT
+                        COUNT(*) AS `count`
+                    FROM
+                        `reposts` `r`
+                    WHERE
+                        `r`.post_id = `p`.`id`
+                )
+                AS count_repost
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
