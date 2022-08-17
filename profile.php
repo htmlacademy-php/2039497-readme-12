@@ -25,7 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if (isset($form['comment'])) {
         if (empty($form['comment'])) {
-            $errors['comment'] = "Это поле обязательно к заполнению.";
+            $errors[$form['post_id']]['comment'] = "Это поле обязательно к заполнению.";
+            // print_r($errors);exit;
         }
         if (empty($errors)) {
             add_comment($link, $form, $id_user);

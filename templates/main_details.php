@@ -56,7 +56,7 @@
 
         <div class="post__indicators">
             <div class="post__buttons">
-              <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+              <a class="post__indicator post__indicator--likes button" href="?id=<?=$post['id'];?>&like_post=<?=$post['id'];?>" title="Лайк">
                 <svg class="post__indicator-icon" width="20" height="17">
                   <use xlink:href="#icon-heart"></use>
                 </svg>
@@ -73,7 +73,7 @@
                 <span><?=$post['count_comment'];?></span>
                 <span class="visually-hidden">количество комментариев</span>
               </a>
-              <a class="post__indicator post__indicator--repost button" href="#" title="Репост">
+              <a class="post__indicator post__indicator--repost button" href="?id=<?=$post['id'];?>&repost=<?=$post['id'];?>" title="Репост">
                 <svg class="post__indicator-icon" width="19" height="17">
                   <use xlink:href="#icon-repost"></use>
                 </svg>
@@ -90,6 +90,24 @@
         </ul>
         <?php if((int)$post['count_comment'] !== 0):?>
             <div class="comments">
+
+                <form class="comments__form form" action="#" method="post">
+                    <div class="comments__my-avatar">
+                        <img class="comments__picture" src="uploads/<?=$user['avatar'];?>" alt="Аватар пользователя">
+                    </div>
+                    <div class="form__input-section <?=array_key_exists($post['id'], $errors) ? 'form__input-section--error' : '';?>">
+                        <textarea class="comments__textarea form__textarea form__input" placeholder="Ваш комментарий" name="comment"></textarea>
+                        <input type="text" value="<?=$post['id'];?>" name="post_id" hidden>
+                        <label class="visually-hidden">Ваш комментарий</label>
+                        <button class="form__error-button button" type="button">!</button>
+                        <div class="form__error-text">
+                            <h3 class="form__error-title">Ошибка валидации</h3>
+                            <p class="form__error-desc"><?=array_key_exists($post['id'], $errors) ? $errors[$post['id']]['comment'] : '';?></p>
+                        </div>
+                    </div>
+                    <button class="comments__submit button button--green" type="submit">Отправить</button>
+                </form>
+
                 <div class="comments__list-wrapper">
                     <ul class="comments__list">
                     <?php $count = 0;?>
@@ -134,6 +152,7 @@
                         <sup class="comments__amount"><?=$post['count_comment'] - 2;?></sup>
                         </a>
                     <?php endif;?>
+
                 </div>
             </div>
         <?php endif;?>

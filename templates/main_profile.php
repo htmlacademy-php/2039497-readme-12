@@ -227,14 +227,14 @@
                     <div class="comments__my-avatar">
                         <img class="comments__picture" src="uploads/<?=$user['avatar'];?>" alt="Аватар пользователя">
                     </div>
-                    <div class="form__input-section <?=array_key_exists('comment', $errors) ? 'form__input-section--error' : '';?>">
+                    <div class="form__input-section <?=array_key_exists($post['id'], $errors) ? 'form__input-section--error' : '';?>">
                         <textarea class="comments__textarea form__textarea form__input" placeholder="Ваш комментарий" name="comment"></textarea>
                         <input type="text" value="<?=$post['id'];?>" name="post_id" hidden>
                         <label class="visually-hidden">Ваш комментарий</label>
                         <button class="form__error-button button" type="button">!</button>
                         <div class="form__error-text">
                             <h3 class="form__error-title">Ошибка валидации</h3>
-                            <p class="form__error-desc"><?=array_key_exists('comment', $errors) ? $errors['comment'] : '';?></p>
+                            <p class="form__error-desc"><?=array_key_exists($post['id'], $errors) ? $errors[$post['id']]['comment'] : '';?></p>
                         </div>
                     </div>
                     <button class="comments__submit button button--green" type="submit">Отправить</button>

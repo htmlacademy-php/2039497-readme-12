@@ -17,6 +17,8 @@ $title = "readme: публикация";
 $is_auth = 1;
 $user = $_SESSION['user'];
 
+$errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $form = $_POST;
@@ -42,6 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($form['action'] == "desub") {
             del_subscription($link, $form, $id_user);
         }
+    } elseif (isset($form['comment'])) {
+        if (empty($form['comment'])) {
+            $errors[$form['post_id']]['comment'] = "Это поле обязательно к заполнению.";
+            // print_r($errors);exit;
+        }
+        if (empty($errors)) {
+            add_comment($link, $form, $id_user);
+        }
     }
 }
 
@@ -50,6 +60,19 @@ if (!isset($_GET['id']) || !isset_post($link, $_GET['id'])) {
     print("Такой страницы не существует");
     exit();
 }
+
+if (isset($_GET['like_post']) && !empty($_GET['like_post'])) {
+    add_like($link, $id_user, $_GET['like_post']);
+    header("Location: {$_SERVER['HTTP_REFERER']}");
+    exit();
+}
+
+if (isset($_GET['repost']) && !empty($_GET['repost'])) {
+    add_repost($link, $id_user, $_GET['repost']);
+    header("Location: {$_SERVER['HTTP_REFERER']}");
+    exit();
+}
+
 
 $id = $_GET['id'];
 $class_main = "page__main--publication";
@@ -70,6 +93,8 @@ $main = include_template("main_details.php", [
     "created_at_user" => $created_at_user,
     "registration_user_id" => $id_user,
     "link" => $link,
+    "errors" => $errors,
+    "user" => $user
 ]);
 
 $layout_content = include_template("layout.php", [

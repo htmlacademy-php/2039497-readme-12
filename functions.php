@@ -1387,7 +1387,7 @@ function add_subscription(mysqli $link, array $form, string $user_id) {
 
     $destination_user_id = mysqli_real_escape_string($link, $form['destination-user']);
     $source_user_id = mysqli_real_escape_string($link, $user_id);
-
+    // echo $destination_user_id;exit;
     if (isset_user($link, $destination_user_id)) {
         $sql = 'INSERT INTO `subscriptions` (`source_user_id`, `destination_user_id`) VALUES (?, ?);';
         $stmt = db_get_prepare_stmt($link, $sql, [$source_user_id, $destination_user_id]);
@@ -1567,9 +1567,9 @@ function isset_user(mysqli $link, string $user_id): bool {
     $sql = "SELECT
                 *
             FROM
-                `posts` `p`
+                `users` `u`
             WHERE
-                `p`.`id` = '$user_id';";
+                `u`.`id` = '$user_id';";
 
     $result = mysqli_query($link, $sql);
 
