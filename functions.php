@@ -7,15 +7,26 @@
  * @param string $type_post
  * @param int $page_items
  * @param int $offset
+ * @param string $sorted
  * @return array
  */
-function get_popular_posts(mysqli $link, int $page_items, int $offset, string $type_post = null): array {
+function get_popular_posts(mysqli $link, int $page_items, int $offset, string $sorted = null, string $type_post = null): array {
 
     $where = "";
 
     if (!is_null($type_post)) {
         $safe_type_post = mysqli_real_escape_string($link, $type_post);
         $where = "WHERE `tc`.`class_name` = '$safe_type_post'";
+    }
+
+    if ($sorted === "popular") {
+        $sort = "ORDER BY `count_views` DESC";
+    } elseif ($sorted === "like") {
+        $sort = "ORDER BY `count_likes` DESC";
+    } elseif($sorted === "date") {
+        $sort = "ORDER BY `p`.`created_at` DESC";
+    } else {
+        $sort = "";
     }
 
     $sql = "SELECT
@@ -58,7 +69,7 @@ function get_popular_posts(mysqli $link, int $page_items, int $offset, string $t
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
                 JOIN `type_content` `tc` ON `tc`.`id` = `p`.`type_content_id`
             $where
-            ORDER BY `p`.`created_at` DESC
+            $sort
             LIMIT $page_items OFFSET $offset;";
 
     $result = mysqli_query($link, $sql);
@@ -1636,4 +1647,18 @@ function get_search_posts_by_tag(mysqli $link, string $search): array {
     }
 
     return mysqli_fetch_all($result, MYSQLI_ASSOC);
+}
+
+/**
+ *
+ * @param string $param
+ * @return string
+ */
+function get_sorted_class(string $param) : string {
+
+    if (isset($_GET['sorted']) && $_GET['sorted'] === $param) {
+        return "sorting__link--active";
+    }
+
+    return "";
 }

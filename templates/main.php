@@ -7,7 +7,7 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link sorting__link--active" href="#">
+                        <a class="sorting__link <?=!isset($_GET['sorted']) ? "sorting__link--active" : get_sorted_class("popular");?>" href="<?=$filter_posts;?>&sorted=popular">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -15,7 +15,7 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link <?=get_sorted_class("like");?>" href="<?=$filter_posts;?>&sorted=like">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -23,7 +23,7 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link <?=get_sorted_class("date");?>" href="<?=$filter_posts;?>&sorted=date">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -36,13 +36,13 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?> <?=get_class_active("all");?>" href="popular.php?type_post=all">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?> <?=get_class_active("all");?>" href="<?=$filter_posts . $sorted;?>&type_post=all">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="<?=$filter_posts . $sorted;?>&type_post=<?=$type_content['class_name'];?>">
                             <?php if($type_content['class_name'] === 'photo'):?>
                                 <span class="visually-hidden">Фото</span>
                                 <svg class="filters__icon" width="22" height="18">
@@ -165,7 +165,7 @@
             <?php endforeach;?>
         </div>
         <div class="popular__page-links">
-            <a class="popular__page-link popular__page-link--prev button button--gray" <?=$cur_page == 1 || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts;?>&page=<?=($cur_page - 1) > 0 ? ($cur_page - 1) : "1"?>">Предыдущая страница</a>
-            <a class="popular__page-link popular__page-link--next button button--gray" <?=$cur_page == $pages_count || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts;?>&page=<?=($cur_page + 1) < $pages_count ? ($cur_page + 1) : "$pages_count"?>">Следующая страница</a>
+            <a class="popular__page-link popular__page-link--prev button button--gray" <?=$cur_page == 1 || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page - 1) > 0 ? ($cur_page - 1) : "1"?>">Предыдущая страница</a>
+            <a class="popular__page-link popular__page-link--next button button--gray" <?=$cur_page == $pages_count || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page + 1) < $pages_count ? ($cur_page + 1) : "$pages_count"?>">Следующая страница</a>
         </div>
     </div>

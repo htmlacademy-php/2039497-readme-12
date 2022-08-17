@@ -38,12 +38,12 @@
             <nav class="header__nav">
                 <ul class="header__my-nav">
                     <li class="header__my-page header__my-page--popular">
-                        <a class="header__page-link <?php echo strpos($_SERVER['REQUEST_URI'], 'popular.php') !== false ? 'header__page-link--active' : '';?>" href="popular.php" title="Популярный контент">
+                        <a class="header__page-link <?=strpos($_SERVER['REQUEST_URI'], 'popular.php') !== false ? 'header__page-link--active' : '';?>" href="popular.php" title="Популярный контент">
                             <span class="visually-hidden">Популярный контент</span>
                         </a>
                     </li>
                     <li class="header__my-page header__my-page--feed">
-                        <a class="header__page-link <?php echo strpos($_SERVER['REQUEST_URI'], 'feed.php') !== false ? 'header__page-link--active' : '';?>" href="feed.php" title="Моя лента">
+                        <a class="header__page-link <?=strpos($_SERVER['REQUEST_URI'], 'feed.php') !== false ? 'header__page-link--active' : '';?>" href="feed.php" title="Моя лента">
                             <span class="visually-hidden">Моя лента</span>
                         </a>
                     </li>

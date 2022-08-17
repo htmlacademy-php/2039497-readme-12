@@ -23,7 +23,7 @@ if (isset($_GET['type_post']) && $_GET['type_post'] !== "all") {
     $offset = ((int)$cur_page - 1) * $page_items;
     $pages = range(1, $pages_count);
 
-    $posts_array = get_popular_posts($link, $page_items, $offset, $_GET['type_post']);
+    $posts_array = get_popular_posts($link, $page_items, $offset, $_GET['sorted'] ?? "popular", $_GET['type_post']);
     $filter_posts = "?type_post=" . $_GET['type_post'];
 } else {
 
@@ -33,7 +33,12 @@ if (isset($_GET['type_post']) && $_GET['type_post'] !== "all") {
     $pages = range(1, $pages_count);
 
     $filter_posts = "?type_post=all";
-    $posts_array = get_popular_posts($link, $page_items, $offset);
+    $posts_array = get_popular_posts($link, $page_items, $offset, $_GET['sorted'] ?? "popular");
+}
+
+$sorted = "&sorted=popular";
+if (isset($_GET['sorted']) && !empty($_GET['sorted'])) {
+    $sorted = "&sorted={$_GET['sorted']}";
 }
 
 $content_type_array = get_all_type_content($link);
@@ -45,7 +50,8 @@ $main = include_template("main.php", [
     "pages" => $pages,
     "pages_count" => $pages_count,
     "cur_page" => $cur_page,
-    "filter_posts" => $filter_posts
+    "filter_posts" => $filter_posts,
+    "sorted" => $sorted
 ]);
 
 $layout_content = include_template("layout.php", [
