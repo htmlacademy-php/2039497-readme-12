@@ -7,7 +7,7 @@
                 <b class="popular__sorting-caption sorting__caption">Сортировка:</b>
                 <ul class="popular__sorting-list sorting__list">
                     <li class="sorting__item sorting__item--popular">
-                        <a class="sorting__link sorting__link--active" href="#">
+                        <a class="sorting__link <?=!isset($_GET['sorted']) ? "sorting__link--active" : get_sorted_class("popular");?>" href="<?=$filter_posts;?>&sorted=popular">
                             <span>Популярность</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -15,7 +15,7 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link <?=get_sorted_class("like");?>" href="<?=$filter_posts;?>&sorted=like">
                             <span>Лайки</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -23,7 +23,7 @@
                         </a>
                     </li>
                     <li class="sorting__item">
-                        <a class="sorting__link" href="#">
+                        <a class="sorting__link <?=get_sorted_class("date");?>" href="<?=$filter_posts;?>&sorted=date">
                             <span>Дата</span>
                             <svg class="sorting__icon" width="10" height="12">
                                 <use xlink:href="#icon-sort"></use>
@@ -36,31 +36,31 @@
                 <b class="popular__filters-caption filters__caption">Тип контента:</b>
                 <ul class="popular__filters-list filters__list">
                     <li class="popular__filters-item popular__filters-item--all filters__item filters__item--all">
-                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?>" href="popular.php">
+                        <a class="filters__button filters__button--ellipse filters__button--all <?=get_class_active();?> <?=get_class_active("all");?>" href="<?=$filter_posts . $sorted;?>&type_post=all">
                             <span>Все</span>
                         </a>
                     </li>
                     <?php foreach($content_type_array as $type_content):?>
                     <li class="popular__filters-item filters__item">
-                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="?type_post=<?=$type_content['class_name'];?>">
-                        <?php if($type_content['class_name'] === 'photo'):?>
-                            <span class="visually-hidden">Фото</span>
-                            <svg class="filters__icon" width="22" height="18">
-                        <?php elseif($type_content['class_name'] === 'quote'):?>
-                            <span class="visually-hidden">Цитата</span>
-                            <svg class="filters__icon" width="21" height="20">
-                        <?php elseif($type_content['class_name'] === 'link'):?>
-                            <span class="visually-hidden">Ссылка</span>
-                            <svg class="filters__icon" width="21" height="18">
-                        <?php elseif($type_content['class_name'] === 'video'):?>
-                            <span class="visually-hidden">Видео</span>
-                            <svg class="filters__icon" width="24" height="16">
-                        <?php elseif($type_content['class_name'] === 'text'):?>
-                            <span class="visually-hidden">Текст</span>
-                            <svg class="filters__icon" width="20" height="21">
-                        <?php endif;?>
-                            <use xlink:href="#icon-filter-<?=$type_content['class_name'];?>"></use>
-                            </svg>
+                        <a class="filters__button filters__button--<?=$type_content['class_name'];?> button <?=get_class_active($type_content['class_name']);?>" href="<?=$filter_posts . $sorted;?>&type_post=<?=$type_content['class_name'];?>">
+                            <?php if($type_content['class_name'] === 'photo'):?>
+                                <span class="visually-hidden">Фото</span>
+                                <svg class="filters__icon" width="22" height="18">
+                            <?php elseif($type_content['class_name'] === 'quote'):?>
+                                <span class="visually-hidden">Цитата</span>
+                                <svg class="filters__icon" width="21" height="20">
+                            <?php elseif($type_content['class_name'] === 'link'):?>
+                                <span class="visually-hidden">Ссылка</span>
+                                <svg class="filters__icon" width="21" height="18">
+                            <?php elseif($type_content['class_name'] === 'video'):?>
+                                <span class="visually-hidden">Видео</span>
+                                <svg class="filters__icon" width="24" height="16">
+                            <?php elseif($type_content['class_name'] === 'text'):?>
+                                <span class="visually-hidden">Текст</span>
+                                <svg class="filters__icon" width="20" height="21">
+                            <?php endif;?>
+                                <use xlink:href="#icon-filter-<?=$type_content['class_name'];?>"></use>
+                                </svg>
                         </a>
                     </li>
                     <?php endforeach;?>
@@ -131,7 +131,7 @@
                             <a class="post__author-link" href="#" title="Автор">
                                 <div class="post__avatar-wrapper">
                                     <!--укажите путь к файлу аватара-->
-                                    <img class="post__author-avatar" src="img/<?=htmlspecialchars($post['avatar']);?>" alt="Аватар пользователя">
+                                    <img class="post__author-avatar" src="uploads/<?=htmlspecialchars($post['avatar']);?>" alt="Аватар пользователя">
                                 </div>
                                 <div class="post__info">
                                     <b class="post__author-name"><!--здесь имя пользоателя--><?=htmlspecialchars($post['name_user']);?></b>
@@ -141,7 +141,7 @@
                         </div>
                         <div class="post__indicators">
                             <div class="post__buttons">
-                                <a class="post__indicator post__indicator--likes button" href="#" title="Лайк">
+                                <a class="post__indicator post__indicator--likes button" href="<?=$filter_posts;?>&like_post=<?=$post['id'];?>" title="Лайк">
                                     <svg class="post__indicator-icon" width="20" height="17">
                                         <use xlink:href="#icon-heart"></use>
                                     </svg>
@@ -151,7 +151,7 @@
                                     <span><?=$post['count_likes'];?></span>
                                     <span class="visually-hidden">количество лайков</span>
                                 </a>
-                                <a class="post__indicator post__indicator--comments button" href="#" title="Комментарии">
+                                <a class="post__indicator post__indicator--comments button" href="post.php?id=<?=$post['id'];?>" title="Комментарии">
                                     <svg class="post__indicator-icon" width="19" height="17">
                                         <use xlink:href="#icon-comment"></use>
                                     </svg>
@@ -163,5 +163,9 @@
                     </footer>
                 </article>
             <?php endforeach;?>
+        </div>
+        <div class="popular__page-links">
+            <a class="popular__page-link popular__page-link--prev button button--gray" <?=$cur_page == 1 || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page - 1) > 0 ? ($cur_page - 1) : "1"?>">Предыдущая страница</a>
+            <a class="popular__page-link popular__page-link--next button button--gray" <?=$cur_page == $pages_count || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page + 1) < $pages_count ? ($cur_page + 1) : "$pages_count"?>">Следующая страница</a>
         </div>
     </div>

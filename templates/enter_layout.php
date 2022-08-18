@@ -134,7 +134,7 @@
                 <a class="footer__page-link" href="popular.php">Популярный контент</a>
               </li>
               <li class="footer__my-page footer__my-page--messages">
-                <a class="footer__page-link" href="messages.html">Личные сообщения</a>
+                <a class="footer__page-link" href="#">Личные сообщения</a>
               </li>
             </ul>
             <div class="footer__copyright">

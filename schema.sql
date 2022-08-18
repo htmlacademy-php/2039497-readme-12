@@ -101,6 +101,7 @@ CREATE TABLE `comments` (
 */
 CREATE TABLE `likes` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `created_at` DATETIME NOT NULL,
     `user_id` INT NOT NULL,
     `post_id` INT NOT NULL,
     FOREIGN KEY `user_index` (`user_id`) REFERENCES `users` (`id`),
@@ -120,9 +121,9 @@ CREATE TABLE `likes` (
 CREATE TABLE `subscriptions` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `source_user_id` INT NOT NULL,
-    `destination_post_id` INT NOT NULL,
+    `destination_user_id` INT NOT NULL,
     FOREIGN KEY `source_user_index` (`source_user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY `destination_post_index` (`destination_post_id`) REFERENCES `users` (`id`)
+    FOREIGN KEY `destination_user_index` (`destination_user_id`) REFERENCES `users` (`id`)
 );
 
 
@@ -153,4 +154,14 @@ CREATE TABLE `messages` (
 CREATE TABLE `roles` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `role` VARCHAR(64) NOT NULL UNIQUE
+);
+
+
+CREATE TABLE `reposts` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `created_at` DATETIME NOT NULL,
+    `user_id` INT NOT NULL,
+    `post_id` INT NOT NULL,
+    FOREIGN KEY `user_index` (`user_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY `post_index` (`post_id`) REFERENCES `posts` (`id`)
 );

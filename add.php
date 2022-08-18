@@ -3,6 +3,9 @@ require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
 
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mime\Email;
 
 if (!isset($_SESSION['user'])) {
     header("Location: /");
@@ -109,6 +112,22 @@ if (isset($_POST['type-content'])) {
 
         add_tag($link, $post["$type_content-tags"], $post_id);
 
+        $subscribers = get_subscribers($link, $user_id);
+
+        foreach($subscribers as $subscriber) {
+            $dsn = 'smtp://login:passwd@mail.example.ru:465';
+            $transport = Transport::fromDsn($dsn);
+            $message = new Email();
+            $message->to("{$subscriber['email']}");
+            $message->from("{$user['email']}");
+            $message->subject("Новая публикация от пользователя {$user['login']}");
+            $info_post = get_selected_post($link, $post_id);
+            $body = "Здравствуйте, {$subscriber['login']}. Пользователь {$user['login']} только что опубликовал новую запись „{$info_post['header']}“. Посмотрите её на странице пользователя: http://example.ru/profile.php?id={$subscriber['id']}";
+            $message->text($body);
+            $mailer = new Mailer($transport);
+            $mailer->send($message);
+        }
+
         header("Location: post.php?id=" . $post_id);
         exit();
     }
@@ -121,7 +140,7 @@ $main = include_template("main_add.php", [
 
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
-    "user_name" => $user['login'],
+    "user" => $user,
     "title" => $title,
     "main" => $main,
     "class_main" => $class_main

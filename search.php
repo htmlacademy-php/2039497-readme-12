@@ -18,7 +18,11 @@ $search = $_GET['search'] ?? '';
 $posts_array = [];
 
 if ($search) {
-    $posts_array = get_search_posts($link, $search);
+    if (substr($search, 0, 1) === "#") {
+        $posts_array = get_search_posts_by_tag($link, substr($search, 1));
+    } else {
+        $posts_array = get_search_posts($link, $search);
+    }
 }
 
 $class_main = "page__main--search-results";
@@ -27,7 +31,7 @@ $main = include_template("main_search.php", ["posts_array" => $posts_array, "sea
 
 $layout_content = include_template("layout.php", [
     "is_auth" => $is_auth,
-    "user_name" => $user['login'],
+    "user" => $user,
     "title" => $title,
     "main" => $main,
     "class_main" => $class_main

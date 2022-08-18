@@ -6,13 +6,13 @@ require_once 'functions.php';
 
 
 $is_auth = 0;
-$title = "Регистрация";
+$title = "readme: регистрация";
 $class_main = "page__main--registration";
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $required = ['email', 'password', 'login', 'password-repeat'];              // Обазятельные для заполнения поля
+    $required = ['email', 'password', 'login', 'password-repeat'];
     $form = $_POST;
 
     foreach ($required as $field) {

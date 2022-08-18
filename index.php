@@ -4,7 +4,7 @@ require_once 'helpers.php';
 require_once 'functions.php';
 
 
-$title = 'Вход';
+$title = 'readme: авторизация';
 $errors = [];
 
 if (isset($_SESSION['user'])) {
@@ -28,16 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 	$user = $res ? mysqli_fetch_array($res, MYSQLI_ASSOC) : null;
 
-	if (!count($errors) and $user) {
-		if (password_verify($form['password'], $user['password'])) {
-			$_SESSION['user'] = $user;
-            $_SESSION['id'] = $user['id'];
-		} else {
-			$errors['password'] = 'Неверный пароль';
-		}
-	} else {
-		$errors['login'] = 'Такой пользователь не найден';
-	}
+	if (!count($errors)) {
+        if ($user) {
+            if (password_verify($form['password'], $user['password'])) {
+                $_SESSION['user'] = $user;
+                $_SESSION['id'] = $user['id'];
+            } else {
+                $errors['password'] = 'Неверный пароль';
+            }
+        } else {
+            $errors['login'] = 'Такой пользователь не найден';
+        }
+    }
 
 	if (!count($errors)) {
         header("Location: feed.php");

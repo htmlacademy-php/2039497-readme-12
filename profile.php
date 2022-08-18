@@ -13,7 +13,7 @@ if (!isset($_SESSION['user'])) {
 }
 
 $id_user = $_SESSION['id'];
-$title = "readme: публикация";
+$title = "Профиль";
 $is_auth = 1;
 $user = $_SESSION['user'];
 
@@ -23,7 +23,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $form = $_POST;
 
-    if (isset($form['destination-user']) && isset($form['action'])) {
+    if (isset($form['comment'])) {
+        if (empty($form['comment'])) {
+            $errors[$form['post_id']]['comment'] = "Это поле обязательно к заполнению.";
+            // print_r($errors);exit;
+        }
+        if (empty($errors)) {
+            add_comment($link, $form, $id_user);
+        }
+    } elseif (isset($form['destination-user']) && isset($form['action'])) {
         if ($form['action'] == "sub") {
             add_subscription($link, $form, $id_user);
 
@@ -44,21 +52,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($form['action'] == "desub") {
             del_subscription($link, $form, $id_user);
         }
-    } elseif (isset($form['comment'])) {
-        if (empty($form['comment'])) {
-            $errors[$form['post_id']]['comment'] = "Это поле обязательно к заполнению.";
-            // print_r($errors);exit;
-        }
-        if (empty($errors)) {
-            add_comment($link, $form, $id_user);
-        }
     }
+
 }
 
-if (!isset($_GET['id']) || !isset_post($link, $_GET['id'])) {
-    header("HTTP/1.1 404 Not Found");
-    print("Такой страницы не существует");
-    exit();
+
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+    $user_profile = get_user_profile($link, $_GET['id']);
+} else {
+    $user_profile = $user;
 }
 
 if (isset($_GET['like_post']) && !empty($_GET['like_post'])) {
@@ -74,27 +76,33 @@ if (isset($_GET['repost']) && !empty($_GET['repost'])) {
 }
 
 
-$id = $_GET['id'];
-$class_main = "page__main--publication";
-$post = get_selected_post($link, $id);
-$count_post_user = get_count_post_user($link, $post['name_user']);
-$count_subscriptions_user = get_count_subscriptions_user($link, $post['name_user']);
-$created_at_user = get_created_at_user($link, $post['name_user']);
+$count_post_user = get_count_post_user($link, $user_profile['login']);
+$count_subscriptions_user = get_count_subscriptions_user($link, $user_profile['login']);
+$posts_array = array_merge(get_posts_user($link, $user_profile['id']), get_reposts_user($link, $user_profile['id']));
 
-$hashtags = get_hashtags($link, $id);
-$comments = get_comments($link, $id);
-$post['hashtags'] = $hashtags ? $hashtags : [];
-$post['comments'] = $comments ? $comments : [];
+foreach($posts_array as &$post) {
+    $hashtags = get_hashtags($link, $post['id']);
+    $comments = get_comments($link, $post['id']);
+    $post['hashtags'] = $hashtags ? $hashtags : [];
+    $post['comments'] = $comments ? $comments : [];
+}
 
-$main = include_template("main_details.php", [
-    "post" => $post,
+$likes_array = get_likes($link, $user_profile['id']);
+$subscribers_array = get_subscribers($link, $user_profile['id']);
+
+$class_main = "page__main--profile";
+
+$main = include_template("main_profile.php", [
     "count_post_user" => $count_post_user,
     "count_subscriptions_user" => $count_subscriptions_user,
-    "created_at_user" => $created_at_user,
-    "registration_user_id" => $id_user,
-    "link" => $link,
+    "user_profile" => $user_profile,
+    "likes_array" => $likes_array,
+    "posts_array" => $posts_array,
+    "subscribers_array" => $subscribers_array,
     "errors" => $errors,
-    "user" => $user
+    "link" => $link,
+    "registration_user_id" => $id_user,
+    "user" => $user,
 ]);
 
 $layout_content = include_template("layout.php", [
@@ -106,4 +114,3 @@ $layout_content = include_template("layout.php", [
 ]);
 
 print($layout_content);
-
