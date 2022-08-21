@@ -233,7 +233,7 @@
                         <label class="visually-hidden">Ваш комментарий</label>
                         <button class="form__error-button button" type="button">!</button>
                         <div class="form__error-text">
-                            <h3 class="form__error-title">Ошибка валидации</h3>
+                            <h3 class="form__error-title">Ошибка валидации - <?=$post['id'];?> - <?=$errors[$post['id']]['comment'];?></h3>
                             <p class="form__error-desc"><?=array_key_exists($post['id'], $errors) ? $errors[$post['id']]['comment'] : '';?></p>
                         </div>
                     </div>
