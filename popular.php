@@ -37,11 +37,7 @@ if (isset($_GET['type_post']) && $_GET['type_post'] !== "all") {
     $posts_array = get_popular_posts($link, $page_items, $offset, $_GET['sorted'] ?? "popular");
 }
 
-// if (isset($_GET['like_post']) && !empty($_GET['like_post'])) {
-    add_like($link, $id_user); // $_GET['like_post']
-//     header("Location: {$_SERVER['HTTP_REFERER']}");
-//     exit();
-// }
+add_like($link, $id_user);
 
 $sorted = "&sorted=popular";
 if (isset($_GET['sorted']) && !empty($_GET['sorted'])) {
