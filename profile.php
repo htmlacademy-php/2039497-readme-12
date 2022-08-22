@@ -3,17 +3,13 @@ require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
 
-use Symfony\Component\Mailer\Transport;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mime\Email;
-
 if (!isset($_SESSION['user'])) {
     header("Location: /");
     exit();
 }
 
 $id_user = $_SESSION['id'];
-$title = "Профиль";
+$title = "readme: профиль";
 $is_auth = 1;
 $user = $_SESSION['user'];
 
