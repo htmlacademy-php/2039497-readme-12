@@ -57,7 +57,7 @@
     <div class="profile__tab-content">
         <section class="profile__posts tabs__content <?=get_class_user_profile('post', true);?>">
             <h2 class="visually-hidden">Публикации</h2>
-            <?php foreach($posts_array as $idx => $post):?>
+            <?php foreach($posts_array as $post):?>
                 <article class="profile__post post post-<?=$post['class_name'];?>">
                 <?php if(isset($post['repost'])):?>
                     <header class="post__header">
@@ -227,14 +227,14 @@
                     <div class="comments__my-avatar">
                         <img class="comments__picture" src="uploads/<?=$user['avatar'];?>" alt="Аватар пользователя">
                     </div>
-                    <div class="form__input-section <?=array_key_exists($idx, $errors) ? 'form__input-section--error' : '';?>">
+                    <div class="form__input-section <?=array_key_exists($post['id'], $errors) ? 'form__input-section--error' : '';?>">
                         <textarea class="comments__textarea form__textarea form__input" placeholder="Ваш комментарий" name="comment"></textarea>
-                        <input type="text" value="<?=$idx;?>" name="post_id" hidden>
+                        <input type="text" value="<?=$post['id'];?>" name="post_id" hidden>
                         <label class="visually-hidden">Ваш комментарий</label>
                         <button class="form__error-button button" type="button">!</button>
                         <div class="form__error-text">
                             <h3 class="form__error-title">Ошибка валидации</h3>
-                            <p class="form__error-desc"><?=array_key_exists($idx, $errors) ? $errors[$idx]['comment'] : '';?></p>
+                            <p class="form__error-desc"><?=array_key_exists($post['id'], $errors) ? $errors[$post['id']]['comment'] : '';?></p>
                         </div>
                     </div>
                     <button class="comments__submit button button--green" type="submit">Отправить</button>

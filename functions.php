@@ -688,7 +688,7 @@ function add_post(mysqli $link, string $type_content, array $post_field_filter, 
     $res = mysqli_stmt_execute($stmt);
 
     if ($res) {
-        return mysqli_insert_id($link);;
+        return mysqli_insert_id($link);
     } else {
         $error = mysqli_error($link);
         print("Ошибка MySQL: " . $error);
