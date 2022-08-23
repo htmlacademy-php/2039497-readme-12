@@ -250,7 +250,6 @@ function get_count_post_user(mysqli $link, string $name_user): int {
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
-                -- LEFT OUTER JOIN `reposts` `rp` ON `rp`.`user_id` = `u`.`id`
             WHERE
                 `u`.`login` = '$safe_name_user';";
 
