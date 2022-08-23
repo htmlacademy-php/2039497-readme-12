@@ -59,23 +59,23 @@
             <h2 class="visually-hidden">Публикации</h2>
             <?php foreach($posts_array as $post):?>
                 <article class="profile__post post post-<?=$post['class_name'];?>">
-                <?php if(isset($post['repost'])):?>
+                <?php if($post['repost'] === 'yes'):?>
                     <header class="post__header">
                     <div class="post__author">
                       <a class="post__author-link" href="#" title="Автор">
                         <div class="post__avatar-wrapper post__avatar-wrapper--repost">
-                          <img class="post__author-avatar" src="uploads/<?=$post['avatar'];?>" alt="Аватар пользователя">
+                          <img class="post__author-avatar" src="uploads/<?=$post['user_old_avatar'];?>" alt="Аватар пользователя">
                         </div>
                         <div class="post__info">
-                          <b class="post__author-name">Репост: <?=$post['login'];?></b>
-                          <time class="post__time" datetime="<?=date('d.m.Y H:i', strtotime($post['repost_created_at']));?>"> <?=get_diff_date(date_create(date('Y-m-d H:i:s', strtotime($post['repost_created_at']))));?></time>
+                          <b class="post__author-name">Репост: <?=$post['user_old_login'];?></b>
+                          <time class="post__time" datetime="<?=date('d.m.Y H:i', strtotime($post['created_at']));?>"> <?=get_diff_date(date_create(date('Y-m-d H:i:s', strtotime($post['created_at']))));?></time>
                         </div>
                       </a>
                     </div>
                   </header>
                 <?php else:?>
                     <header class="post__header">
-                        <h2 <?= $post['class_name'] == 'text' ? "style='padding-top: 29px;padding-bottom: 26px;'" : ""?>><a href="post.php?id=<?=$post['id'];?>"><?=htmlspecialchars($post['header']);?></a></h2>
+                        <h2 <?=$post['class_name'] == 'text' ? "style='padding-top: 29px;padding-bottom: 26px;'" : ""?>><a href="post.php?id=<?=$post['id'];?>"><?=htmlspecialchars($post['header']);?></a></h2>
                     </header>
                 <?php endif;?>
                 <div class="post__main">

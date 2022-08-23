@@ -160,8 +160,12 @@ CREATE TABLE `roles` (
 CREATE TABLE `reposts` (
     `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     `created_at` DATETIME NOT NULL,
-    `user_id` INT NOT NULL,
-    `post_id` INT NOT NULL,
-    FOREIGN KEY `user_index` (`user_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY `post_index` (`post_id`) REFERENCES `posts` (`id`)
+    `user_id_old` INT NOT NULL,
+    `post_id_old` INT NOT NULL,
+    `user_id_new` INT NOT NULL,
+    `post_id_new` INT NOT NULL,
+    FOREIGN KEY `user_index_old` (`user_id_old`) REFERENCES `users` (`id`),
+    FOREIGN KEY `post_index_old` (`post_id_old`) REFERENCES `posts` (`id`),
+    FOREIGN KEY `user_index_new` (`user_id_new`) REFERENCES `users` (`id`),
+    FOREIGN KEY `post_index_new` (`post_id_new`) REFERENCES `posts` (`id`)
 );

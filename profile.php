@@ -36,7 +36,7 @@ add_repost($link, $id_user);
 
 $count_post_user = get_count_post_user($link, $user_profile['login']);
 $count_subscriptions_user = get_count_subscriptions_user($link, $user_profile['login']);
-$posts_array = array_merge(get_posts_user($link, $user_profile['id']), get_reposts_user($link, $user_profile['id']));
+$posts_array = get_posts_user($link, $user_profile['id']);// array_merge(get_posts_user($link, $user_profile['id']), get_reposts_user($link, $user_profile['id']));
 
 foreach($posts_array as &$post) {
     $hashtags = get_hashtags($link, $post['id']);

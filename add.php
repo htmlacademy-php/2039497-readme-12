@@ -103,16 +103,12 @@ if (isset($_POST['type-content'])) {
         }, ARRAY_FILTER_USE_KEY);
 
         $post_field_filter['id_type_post'] = get_id_type_post($link, $type_content);
-
-        $post_id = add_post($link, $type_content, $post_field_filter, $user_id);
-
-        add_tag($link, $post["$type_content-tags"], $post_id);
-
+        $post_id = add_post($link, $type_content, $post_field_filter, $user_id, $post["$type_content-tags"]);
         $subscribers = get_subscribers($link, $user_id);
 
         foreach($subscribers as $subscriber) {
             $subject = "Новая публикация от пользователя {$user['login']}";
-            $body = "Здравствуйте, {$subscriber['login']}. Пользователь {$user['login']} только что опубликовал новую запись „{$info_post['header']}“. Посмотрите её на странице пользователя: http://example.ru/profile.php?id={$subscriber['id']}";
+            $body = "Здравствуйте, {$subscriber['login']}. Пользователь {$user['login']} только что опубликовал новую запись „{$post_field_filter['text-heading']}“. Посмотрите её на странице пользователя: http://example.ru/profile.php?id={$subscriber['id']}";
 
             send_message($user, $subscriber, $subject, $body);
         }

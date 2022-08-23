@@ -88,9 +88,7 @@
                 <li><a href="search.php?search=<?=htmlspecialchars(urlencode("#") . $hashtag['hashtag']);?>">#<?=$hashtag['hashtag'];?></a></li>
             <?php endforeach;?>
         </ul>
-        <?php if((int)$post['count_comment'] !== 0):?>
             <div class="comments">
-
                 <form class="comments__form form" action="#" method="post">
                     <div class="comments__my-avatar">
                         <img class="comments__picture" src="uploads/<?=$user['avatar'];?>" alt="Аватар пользователя">
@@ -107,7 +105,7 @@
                     </div>
                     <button class="comments__submit button button--green" type="submit">Отправить</button>
                 </form>
-
+                <?php if((int)$post['count_comment'] !== 0):?>
                 <div class="comments__list-wrapper">
                     <ul class="comments__list">
                     <?php $count = 0;?>
@@ -154,8 +152,9 @@
                     <?php endif;?>
 
                 </div>
+                <?php endif;?>
             </div>
-        <?php endif;?>
+
 
         </div>
         <div class="post-details__user user">

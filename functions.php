@@ -184,10 +184,11 @@ function get_selected_post(mysqli $link, int $id): array {
                     FROM
                         `reposts` `rp`
                     WHERE
-                        `rp`.post_id = `p`.`id`
+                        `rp`.`post_id_old` = `p`.`id`
                 )
                 AS count_reposts,
-                `p`.`id`
+                `p`.`id`,
+                `tc`.`id` AS `id_type_content`
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
@@ -245,19 +246,11 @@ function get_count_post_user(mysqli $link, string $name_user): int {
     $safe_name_user = mysqli_real_escape_string($link, $name_user);
 
     $sql = "SELECT
-                COUNT(*) + (
-                            SELECT
-                                COUNT(*)
-                            FROM
-                                `reposts` `rp`
-                                JOIN `users` `u` ON `u`.`id` = `rp`.`user_id`
-                            WHERE
-                                `u`.`login` = '$safe_name_user'
-                ) AS `count`
+                COUNT(*) AS `count`
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
-                LEFT OUTER JOIN `reposts` `rp` ON `rp`.`user_id` = `u`.`id`
+                -- LEFT OUTER JOIN `reposts` `rp` ON `rp`.`user_id` = `u`.`id`
             WHERE
                 `u`.`login` = '$safe_name_user';";
 
@@ -679,16 +672,19 @@ function get_prepared_post($type_content) : array {
  * @param string $type_content
  * @param array $post_field_filter
  * @param string $user_id
+ * @param string $tags
  * @return string
  */
-function add_post(mysqli $link, string $type_content, array $post_field_filter, string $user_id) : string {
+function add_post(mysqli $link, string $type_content, array $post_field_filter, string $user_id, string $tags) : string {
 
     array_unshift($post_field_filter, $user_id);
     $stmt = db_get_prepare_stmt($link, get_sql_add_post($type_content), $post_field_filter);
     $res = mysqli_stmt_execute($stmt);
 
     if ($res) {
-        return mysqli_insert_id($link);
+        $post_id = mysqli_insert_id($link);
+        add_tag($link, $tags, $post_id);
+        return $post_id;
     } else {
         $error = mysqli_error($link);
         print("Ошибка MySQL: " . $error);
@@ -873,7 +869,7 @@ function get_posts_subscriptions(mysqli $link, string $id_user, string $type_pos
                     FROM
                         `reposts` `r`
                     WHERE
-                        `r`.post_id = `p`.`id`
+                        `r`.`post_id_old` = `p`.`id`
                 )
                 AS count_repost
             FROM
@@ -1022,13 +1018,41 @@ function get_posts_user(mysqli $link, string $id_user): array {
                     FROM
                         `reposts` `rp`
                     WHERE
-                        `rp`.post_id = `p`.`id`
+                        `rp`.`post_id_old` = `p`.`id`
                 )
-                AS count_reposts
+                AS count_reposts,
+
+                CASE
+                    WHEN `p`.`id` IN (
+                            SELECT
+                                `r`.`post_id_new`
+                            FROM
+                                `reposts` `r`
+                        )
+                        THEN 'yes'
+                    ELSE 'no'
+                END AS `repost`,
+                (
+                    SELECT
+                        `u`.`login`
+                    FROM
+                        `users` `u`
+                    WHERE
+                        `u`.`id` = `r`.`user_id_old`
+                ) AS `user_old_login`,
+				(
+                    SELECT
+                        `u`.`avatar`
+                    FROM
+                        `users` `u`
+                    WHERE
+                        `u`.`id` = `r`.`user_id_old`
+                ) AS `user_old_avatar`
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
                 JOIN `type_content` `tc` ON `tc`.`id` = `p`.`type_content_id`
+                LEFT JOIN `reposts` `r` ON `r`.`post_id_new` = `p`.`id`
             WHERE
                 `u`.`id` = '$safe_id_user'
             ORDER BY `p`.`created_at` DESC;";
@@ -1250,6 +1274,7 @@ function get_subscribers(mysqli $link, string $id_user) : array {
                 `u`.`created_at`,
                 `u`.`avatar`,
                 `u`.`id`,
+                `u`.`email`,
                 (
                     SELECT
                         COUNT(*) AS `count`
@@ -1340,7 +1365,7 @@ function get_reposts_user(mysqli $link, string $id_user) : array {
                     FROM
                         `reposts` `rp`
                     WHERE
-                        `rp`.post_id = `p`.`id`
+                        `rp`.`post_id_old` = `p`.`id`
                 )
                 AS count_reposts
             FROM
@@ -1553,8 +1578,25 @@ function add_repost(mysqli $link, string $user_id) {
             exit();
         }
 
-        $sql = 'INSERT INTO `reposts` (`created_at`, `user_id`, `post_id`) VALUES (NOW(), ?, ?);';
-        $stmt = db_get_prepare_stmt($link, $sql, [$user_id, $post_id]);
+        $post = get_selected_post($link, $post_id);
+
+        if ($post['class_name'] === 'quote') {
+            $post_prepared = [$post['header'], $post['content'], $post['author'], $post['id_type_content']];
+        } else {
+            $post_prepared = [$post['header'], $post['content'], $post['id_type_content']];
+        }
+
+        $tags_array = get_hashtags($link, $post_id);
+        $tags = "";
+
+        foreach($tags_array as $tag) {
+            $tags .= " " . $tag['hashtag'];
+        }
+
+        $post_id_new = add_post($link, $post['class_name'], $post_prepared, $user_id, trim($tags));
+
+        $sql = 'INSERT INTO `reposts` (`created_at`, `user_id_new`, `post_id_old`, `user_id_old`, `post_id_new`) VALUES (NOW(), ?, ?, ?, ?);';
+        $stmt = db_get_prepare_stmt($link, $sql, [$user_id, $post_id, $post['user_id'], $post_id_new]);
         $res = mysqli_stmt_execute($stmt);
 
         if (!$res) {
