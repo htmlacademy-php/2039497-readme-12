@@ -944,7 +944,16 @@ function get_search_posts(mysqli $link, string $search): array {
                     WHERE
                         `l`.post_id = `p`.`id`
                 )
-                AS count_likes
+                AS count_likes,
+                (
+                    SELECT
+                        COUNT(*) AS `count`
+                    FROM
+                        `reposts` `rp`
+                    WHERE
+                        `rp`.`post_id_old` = `p`.`id`
+                )
+                AS count_reposts
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
@@ -1297,84 +1306,6 @@ function get_subscribers(mysqli $link, string $id_user) : array {
                 JOIN `users` `u` ON `u`.`id` = `sb`.`destination_user_id`
             WHERE
                 `sb`.`source_user_id` = '$safe_id_user'";
-
-    $result = mysqli_query($link, $sql);
-
-    if (!$result) {
-        $error = mysqli_error($link);
-        print("Ошибка MySQL: " . $error);
-        exit();
-    }
-
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
-/**
- * Возвращает список репостов
- * @param msqli $link
- * @param string $id_user
- * @return array
- */
-function get_reposts_user(mysqli $link, string $id_user) : array {
-
-    $safe_id_user = mysqli_real_escape_string($link, $id_user);
-
-    $sql = "SELECT
-                `p`.`id`,
-                `p`.`header`,
-                `tc`.`class_name`,
-                `u`.`avatar`,
-                `u`.`login`,
-                'repost' AS `repost`,
-                `rp`.`created_at` AS `repost_created_at`,
-            CASE
-                WHEN `tc`.`class_name` IN ('quote', 'text')
-                    THEN `p`.`content_text`
-                WHEN `tc`.`class_name` = 'photo'
-                    THEN `p`.`content_photo`
-                WHEN `tc`.`class_name` = 'link'
-                    THEN `p`.`content_link`
-                ELSE `p`.`content_video`
-            END AS `content`,
-                `p`.`author_quote` AS `author`,
-                `u`.`login` AS `name_user`,
-                `u`.`avatar`,
-                `p`.`created_at`,
-                (
-                    SELECT
-                        COUNT(*) AS `count`
-                    FROM
-                        `comments` `c`
-                    WHERE
-                        `c`.post_id = `p`.`id`
-                )
-                AS count_comment,
-                (
-                    SELECT
-                        COUNT(*) AS `count`
-                    FROM
-                        `likes` `l`
-                    WHERE
-                        `l`.post_id = `p`.`id`
-                )
-                AS count_likes,
-                (
-                    SELECT
-                        COUNT(*) AS `count`
-                    FROM
-                        `reposts` `rp`
-                    WHERE
-                        `rp`.`post_id_old` = `p`.`id`
-                )
-                AS count_reposts
-            FROM
-                `reposts` `rp`
-                JOIN `posts` `p` ON `rp`.`post_id` = `p`.`id`
-                JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
-                JOIN `type_content` `tc` ON `tc`.`id` = `p`.`type_content_id`
-            WHERE
-                `rp`.`user_id` = '$safe_id_user'
-            ORDER BY `p`.`created_at` DESC;";
 
     $result = mysqli_query($link, $sql);
 

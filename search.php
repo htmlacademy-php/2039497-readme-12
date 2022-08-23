@@ -25,6 +25,9 @@ if ($search) {
     }
 }
 
+add_like($link, $id_user);
+add_repost($link, $id_user);
+
 $class_main = "page__main--search-results";
 
 $main = include_template("main_search.php", ["posts_array" => $posts_array, "search" => $search]);
