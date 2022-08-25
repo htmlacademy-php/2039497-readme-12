@@ -2,12 +2,12 @@
 
 USE `readme`;
 
--- список типов контента для поста;
-INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'quote'),
-  ('Текст', 'text'),
-  ('Картинка', 'photo'),
-  ('Ссылка', 'link'),
-  ('Видео', 'video');
+-- -- список типов контента для поста;
+-- INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'quote'),
+--   ('Текст', 'text'),
+--   ('Картинка', 'photo'),
+--   ('Ссылка', 'link'),
+--   ('Видео', 'video');
 
 
 -- придумайте пару пользователей;
@@ -73,4 +73,3 @@ INSERT INTO `likes` (`user_id`, `post_id`, `created_at`) VALUES (2, 1, NOW());
 INSERT INTO `subscriptions` (`source_user_id`, `destination_user_id`) VALUES (2, 1);
 
 
--- INSERT INTO `reposts` (`id`, `created_at`, `user_id`, `post_id`) VALUES (1, '2022-08-15 17:59:47', 1, 1);

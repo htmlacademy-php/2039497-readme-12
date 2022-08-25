@@ -169,3 +169,11 @@ CREATE TABLE `reposts` (
     FOREIGN KEY `user_index_new` (`user_id_new`) REFERENCES `users` (`id`),
     FOREIGN KEY `post_index_new` (`post_id_new`) REFERENCES `posts` (`id`)
 );
+
+
+-- список типов контента для поста;
+INSERT INTO `type_content` (`type`, `class_name`) VALUES ('Цитата', 'quote'),
+  ('Текст', 'text'),
+  ('Картинка', 'photo'),
+  ('Ссылка', 'link'),
+  ('Видео', 'video');
