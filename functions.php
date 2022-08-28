@@ -684,11 +684,12 @@ function add_post(mysqli $link, string $type_content, array $post_field_filter, 
         $post_id = mysqli_insert_id($link);
         add_tag($link, $tags, $post_id);
         return $post_id;
-    } else {
-        $error = mysqli_error($link);
-        print("Ошибка MySQL: " . $error);
-        exit();
     }
+
+    $error = mysqli_error($link);
+    print("Ошибка MySQL: " . $error);
+    exit();
+
 }
 
 /**
@@ -696,6 +697,7 @@ function add_post(mysqli $link, string $type_content, array $post_field_filter, 
  * @param msqli $link
  * @param string $tags
  * @param string $post_id
+ * @return void
  */
 function add_tag(mysqli $link, string $tags, string $post_id) : void {
 
@@ -1324,6 +1326,7 @@ function get_subscribers(mysqli $link, string $id_user) : array {
  * @param array $form
  * @param string $user_id
  * @param array $errors
+ * @return void
  */
 function add_comment(mysqli $link, array $form, string $user_id, &$errors) {
 
@@ -1353,6 +1356,7 @@ function add_comment(mysqli $link, array $form, string $user_id, &$errors) {
             }
 
             header("Location: {$_SERVER['HTTP_REFERER']}");
+            exit();
         }
     }
 }
@@ -1363,6 +1367,7 @@ function add_comment(mysqli $link, array $form, string $user_id, &$errors) {
  * @param array $form
  * @param string $user_id
  * @param array $user
+ * @return void
  */
 function add_subscription(mysqli $link, array $form, string $user_id, array $user) {
 
@@ -1433,6 +1438,7 @@ function isset_subscription(mysqli $link, string $source_user_id, string $destin
  * @param msqli $link
  * @param array $form
  * @param string $user_id
+ * @return void
  */
 function del_subscription(mysqli $link, array $form, string $user_id) {
 
@@ -1465,6 +1471,7 @@ function del_subscription(mysqli $link, array $form, string $user_id) {
  * Добавляет лайк
  * @param msqli $link
  * @param string $user_id
+ * @return void
  */
 function add_like(mysqli $link, string $user_id) {
 
@@ -1496,6 +1503,7 @@ function add_like(mysqli $link, string $user_id) {
  * Добавляет репост в базу
  * @param msqli $link
  * @param string $user_id
+ * @return void
  */
 function add_repost(mysqli $link, string $user_id) {
 
@@ -1688,6 +1696,7 @@ function get_sorted_class(string $param) : string {
  * @param array $destination_user
  * @param string $subject
  * @param string $body
+ * @return void
  */
 function send_message($source_user, $destination_user, $subject, $body) {
 
