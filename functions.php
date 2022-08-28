@@ -1,9 +1,13 @@
 <?php
+use Symfony\Component\Mailer\Transport;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mime\Email;
+
 /**
  * Функция возвращает список популярных постов
  * Имеет необязательный параметр. Если он передан, то возвращается
  * список популярных постов определенного типа.
- * @param msqli
+ * @param msqli $link
  * @param string $type_post
  * @param int $page_items
  * @param int $offset
@@ -85,7 +89,7 @@ function get_popular_posts(mysqli $link, int $page_items, int $offset, string $s
 
 /**
  * Функция возвращает список типов контента
- * @param msqli
+ * @param msqli $link
  * @return array
  */
 function get_all_type_content(mysqli $link): array {
@@ -134,7 +138,7 @@ function get_class_active(string $type_post = null, string $tag = null): string 
 
 /**
  * Функция возвращает пост по его id
- * @param msqli
+ * @param msqli $link
  * @param int $id
  * @return array
  */
@@ -180,10 +184,11 @@ function get_selected_post(mysqli $link, int $id): array {
                     FROM
                         `reposts` `rp`
                     WHERE
-                        `rp`.post_id = `p`.`id`
+                        `rp`.`post_id_old` = `p`.`id`
                 )
                 AS count_reposts,
-                `p`.`id`
+                `p`.`id`,
+                `tc`.`id` AS `id_type_content`
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
@@ -204,18 +209,20 @@ function get_selected_post(mysqli $link, int $id): array {
 
 /**
  * Функция проверяет существование поста с определенным id
- * @param msqli
+ * @param msqli $link
  * @param string $id
  * @return bool
  */
 function isset_post(mysqli $link, string $id): bool {
+
+    $safe_id = mysqli_real_escape_string($link, $id);
 
     $sql = "SELECT
                 *
             FROM
                 `posts` `p`
             WHERE
-                `p`.`id` = '$id';";
+                `p`.`id` = '$safe_id';";
 
     $result = mysqli_query($link, $sql);
 
@@ -230,7 +237,7 @@ function isset_post(mysqli $link, string $id): bool {
 
 /**
  * Функция возвращает кол-во постов данного пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $name_user
  * @return int
  */
@@ -239,19 +246,10 @@ function get_count_post_user(mysqli $link, string $name_user): int {
     $safe_name_user = mysqli_real_escape_string($link, $name_user);
 
     $sql = "SELECT
-                COUNT(*) + (
-                            SELECT
-                                COUNT(*)
-                            FROM
-                                `reposts` `rp`
-                                JOIN `users` `u` ON `u`.`id` = `rp`.`user_id`
-                            WHERE
-                                `u`.`login` = '$safe_name_user'
-                ) AS `count`
+                COUNT(*) AS `count`
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
-                LEFT OUTER JOIN `reposts` `rp` ON `rp`.`user_id` = `u`.`id`
             WHERE
                 `u`.`login` = '$safe_name_user';";
 
@@ -268,7 +266,7 @@ function get_count_post_user(mysqli $link, string $name_user): int {
 
 /**
  * Функция возвращает количество подписчиков данного пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $name_user
  * @return int
  */
@@ -297,7 +295,7 @@ function get_count_subscriptions_user(mysqli $link, string $name_user): int {
 
 /**
  * Функция возвращает дату регистрации пользователя на сайте
- * @param msqli
+ * @param msqli $link
  * @param string $name_user
  * @return string
  */
@@ -562,7 +560,7 @@ function get_sql_add_post($type_content) : string {
 
 /**
  * Возвращает id поста
- * @param msqli
+ * @param msqli $link
  * @param string $type_content
  * @return int
  */
@@ -590,7 +588,7 @@ function get_id_type_post(mysqli $link, string $type_content): int {
 
 /**
  * Зпрос проверку сущетствования тега в бд
- * @param msqli
+ * @param msqli $link
  * @param string $type_content
  * @return array
  */
@@ -669,20 +667,23 @@ function get_prepared_post($type_content) : array {
 
 /**
  * Добавляет посты в БД
- * @param msqli
+ * @param msqli $link
  * @param string $type_content
  * @param array $post_field_filter
  * @param string $user_id
+ * @param string $tags
  * @return string
  */
-function add_post(mysqli $link, string $type_content, array $post_field_filter, string $user_id) : string {
+function add_post(mysqli $link, string $type_content, array $post_field_filter, string $user_id, string $tags) : string {
 
     array_unshift($post_field_filter, $user_id);
     $stmt = db_get_prepare_stmt($link, get_sql_add_post($type_content), $post_field_filter);
     $res = mysqli_stmt_execute($stmt);
 
     if ($res) {
-        return mysqli_insert_id($link);;
+        $post_id = mysqli_insert_id($link);
+        add_tag($link, $tags, $post_id);
+        return $post_id;
     } else {
         $error = mysqli_error($link);
         print("Ошибка MySQL: " . $error);
@@ -692,7 +693,7 @@ function add_post(mysqli $link, string $type_content, array $post_field_filter, 
 
 /**
  * Добавляет теги в БД
- * @param msqli
+ * @param msqli $link
  * @param string $tags
  * @param string $post_id
  */
@@ -809,7 +810,7 @@ function validate_avatar($field) {
 
 /**
  * Список постов для ленты
- * @param msqli
+ * @param msqli $link
  * @param string $id_user
  * @param string|null $type_post
  * @return array
@@ -867,7 +868,7 @@ function get_posts_subscriptions(mysqli $link, string $id_user, string $type_pos
                     FROM
                         `reposts` `r`
                     WHERE
-                        `r`.post_id = `p`.`id`
+                        `r`.`post_id_old` = `p`.`id`
                 )
                 AS count_repost
             FROM
@@ -899,7 +900,7 @@ function get_posts_subscriptions(mysqli $link, string $id_user, string $type_pos
 
 /**
  * Результат поиска по постам
- * @param msqli
+ * @param msqli $link
  * @param string $search
  * @return array
  */
@@ -943,7 +944,16 @@ function get_search_posts(mysqli $link, string $search): array {
                     WHERE
                         `l`.post_id = `p`.`id`
                 )
-                AS count_likes
+                AS count_likes,
+                (
+                    SELECT
+                        COUNT(*) AS `count`
+                    FROM
+                        `reposts` `rp`
+                    WHERE
+                        `rp`.`post_id_old` = `p`.`id`
+                )
+                AS count_reposts
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
@@ -965,7 +975,7 @@ function get_search_posts(mysqli $link, string $search): array {
 
 /**
  * Возвращает посты пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $id_user
  * @return array
  */
@@ -1016,13 +1026,41 @@ function get_posts_user(mysqli $link, string $id_user): array {
                     FROM
                         `reposts` `rp`
                     WHERE
-                        `rp`.post_id = `p`.`id`
+                        `rp`.`post_id_old` = `p`.`id`
                 )
-                AS count_reposts
+                AS count_reposts,
+
+                CASE
+                    WHEN `p`.`id` IN (
+                            SELECT
+                                `r`.`post_id_new`
+                            FROM
+                                `reposts` `r`
+                        )
+                        THEN 'yes'
+                    ELSE 'no'
+                END AS `repost`,
+                (
+                    SELECT
+                        `u`.`login`
+                    FROM
+                        `users` `u`
+                    WHERE
+                        `u`.`id` = `r`.`user_id_old`
+                ) AS `user_old_login`,
+				(
+                    SELECT
+                        `u`.`avatar`
+                    FROM
+                        `users` `u`
+                    WHERE
+                        `u`.`id` = `r`.`user_id_old`
+                ) AS `user_old_avatar`
             FROM
                 `posts` `p`
                 JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
                 JOIN `type_content` `tc` ON `tc`.`id` = `p`.`type_content_id`
+                LEFT JOIN `reposts` `r` ON `r`.`post_id_new` = `p`.`id`
             WHERE
                 `u`.`id` = '$safe_id_user'
             ORDER BY `p`.`created_at` DESC;";
@@ -1041,7 +1079,7 @@ function get_posts_user(mysqli $link, string $id_user): array {
 
 /**
  * Возвращает профиль пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $id_user
  * @return array
  */
@@ -1099,7 +1137,7 @@ function get_class_user_profile(string $type, bool $content = null): string {
 
 /**
  * Возвращает все лайки для данного пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $id_post
  * @return array
  */
@@ -1152,7 +1190,7 @@ function get_likes(mysqli $link, string $id_user) : array {
 
 /**
  * Возвращает тэги к посту
- * @param msqli
+ * @param msqli $link
  * @param string $id_post
  * @return array
  */
@@ -1181,7 +1219,7 @@ function get_hashtags(mysqli $link, string $id_post) :array {
 
 /**
  * Возвращает комментарии к посту
- * @param msqli
+ * @param msqli $link
  * @param string $id_post
  * @return array
  */
@@ -1231,7 +1269,7 @@ function embed_youtube_cover_profile(string $youtube_url = null) {
 
 /**
  * Возвращает подписчиков пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $id_user
  * @return array
  */
@@ -1244,6 +1282,7 @@ function get_subscribers(mysqli $link, string $id_user) : array {
                 `u`.`created_at`,
                 `u`.`avatar`,
                 `u`.`id`,
+                `u`.`email`,
                 (
                     SELECT
                         COUNT(*) AS `count`
@@ -1280,143 +1319,86 @@ function get_subscribers(mysqli $link, string $id_user) : array {
 }
 
 /**
- * Возвращает список репостов
- * @param msqli
- * @param string $id_user
- * @return array
- */
-function get_reposts_user(mysqli $link, string $id_user) : array {
-
-    $safe_id_user = mysqli_real_escape_string($link, $id_user);
-
-    $sql = "SELECT
-                `p`.`id`,
-                `p`.`header`,
-                `tc`.`class_name`,
-                `u`.`avatar`,
-                `u`.`login`,
-                'repost' AS `repost`,
-                `rp`.`created_at` AS `repost_created_at`,
-            CASE
-                WHEN `tc`.`class_name` IN ('quote', 'text')
-                    THEN `p`.`content_text`
-                WHEN `tc`.`class_name` = 'photo'
-                    THEN `p`.`content_photo`
-                WHEN `tc`.`class_name` = 'link'
-                    THEN `p`.`content_link`
-                ELSE `p`.`content_video`
-            END AS `content`,
-                `p`.`author_quote` AS `author`,
-                `u`.`login` AS `name_user`,
-                `u`.`avatar`,
-                `p`.`created_at`,
-                (
-                    SELECT
-                        COUNT(*) AS `count`
-                    FROM
-                        `comments` `c`
-                    WHERE
-                        `c`.post_id = `p`.`id`
-                )
-                AS count_comment,
-                (
-                    SELECT
-                        COUNT(*) AS `count`
-                    FROM
-                        `likes` `l`
-                    WHERE
-                        `l`.post_id = `p`.`id`
-                )
-                AS count_likes,
-                (
-                    SELECT
-                        COUNT(*) AS `count`
-                    FROM
-                        `reposts` `rp`
-                    WHERE
-                        `rp`.post_id = `p`.`id`
-                )
-                AS count_reposts
-            FROM
-                `reposts` `rp`
-                JOIN `posts` `p` ON `rp`.`post_id` = `p`.`id`
-                JOIN `users` `u` ON `u`.`id` = `p`.`user_id`
-                JOIN `type_content` `tc` ON `tc`.`id` = `p`.`type_content_id`
-            WHERE
-                `rp`.`user_id` = '$safe_id_user'
-            ORDER BY `p`.`created_at` DESC;";
-
-    $result = mysqli_query($link, $sql);
-
-    if (!$result) {
-        $error = mysqli_error($link);
-        print("Ошибка MySQL: " . $error);
-        exit();
-    }
-
-    return mysqli_fetch_all($result, MYSQLI_ASSOC);
-}
-
-/**
  * Добавляет комментарий к посту в базу
- * @param msqli
+ * @param msqli $link
  * @param array $form
  * @param string $user_id
+ * @param array $errors
  */
-function add_comment(mysqli $link, array $form, string $user_id) {
+function add_comment(mysqli $link, array $form, string $user_id, &$errors) {
 
-    $comment = mysqli_real_escape_string($link, trim($form['comment']));
-    $post_id = mysqli_real_escape_string($link, $form['post_id']);
-    $user_id = mysqli_real_escape_string($link, $user_id);
-
-    if (isset_post($link, $post_id)) {
-        $sql = 'INSERT INTO `comments` (`created_at`, `comment`, `user_id`, `post_id`) VALUES (NOW(), ?, ?, ?);';
-        $stmt = db_get_prepare_stmt($link, $sql, [$comment, $user_id, $post_id]);
-        $res = mysqli_stmt_execute($stmt);
-
-        if (!$res) {
-            $error = mysqli_error($link);
-            print("Ошибка MySQL: " . $error);
-            exit();
+    if (isset($form['comment'])) {
+        if (empty($form['comment'])) {
+            $errors[$form['post_id']]['comment'] = "Это поле обязательно к заполнению.";
         }
+        if (empty($errors)) {
 
-    } else {
-        print("Такой пост не существует!");
-        exit();
+            $comment = $form['comment'];
+            $post_id = $form['post_id'];
+            $user_id = $user_id;
+
+            if (!isset_post($link, $post_id)) {
+                print("Такой пост не существует!");
+                exit();
+            }
+
+            $sql = 'INSERT INTO `comments` (`created_at`, `comment`, `user_id`, `post_id`) VALUES (NOW(), ?, ?, ?);';
+            $stmt = db_get_prepare_stmt($link, $sql, [$comment, $user_id, $post_id]);
+            $res = mysqli_stmt_execute($stmt);
+
+            if (!$res) {
+                $error = mysqli_error($link);
+                print("Ошибка MySQL: " . $error);
+                exit();
+            }
+
+            header("Location: {$_SERVER['HTTP_REFERER']}");
+        }
     }
 }
 
 /**
- * Добавляет подписку в базу
- * @param msqli
+ * Добавляет подписку
+ * @param msqli $link
  * @param array $form
  * @param string $user_id
+ * @param array $user
  */
-function add_subscription(mysqli $link, array $form, string $user_id) {
+function add_subscription(mysqli $link, array $form, string $user_id, array $user) {
 
-    $destination_user_id = mysqli_real_escape_string($link, $form['destination-user']);
-    $source_user_id = mysqli_real_escape_string($link, $user_id);
-    // echo $destination_user_id;exit;
-    if (isset_user($link, $destination_user_id)) {
-        $sql = 'INSERT INTO `subscriptions` (`source_user_id`, `destination_user_id`) VALUES (?, ?);';
-        $stmt = db_get_prepare_stmt($link, $sql, [$source_user_id, $destination_user_id]);
-        $res = mysqli_stmt_execute($stmt);
+    if (isset($form['destination-user']) && isset($form['action'])) {
+        if ($form['action'] == "sub") {
 
-        if (!$res) {
-            $error = mysqli_error($link);
-            print("Ошибка MySQL: " . $error);
-            exit();
+            $destination_user_id = $form['destination-user'];
+            $source_user_id = $user_id;
+
+            if (!isset_user($link, $destination_user_id)) {
+                print("Такой пользователь не существует!");
+                exit();
+            }
+
+            $sql = 'INSERT INTO `subscriptions` (`source_user_id`, `destination_user_id`) VALUES (?, ?);';
+            $stmt = db_get_prepare_stmt($link, $sql, [$source_user_id, $destination_user_id]);
+            $res = mysqli_stmt_execute($stmt);
+
+            if (!$res) {
+                $error = mysqli_error($link);
+                print("Ошибка MySQL: " . $error);
+                exit();
+            }
+
+            $destination_user = get_user_profile($link, $form['destination-user']);
+            $subject = "У вас новый подписчик";
+            $body = "Здравствуйте, {$destination_user['login']}. На вас подписался новый пользователь {$user['login']}. Вот ссылка на его профиль: http://example.ru/profile.php?id={$user['id']}";
+
+            send_message($user, $destination_user, $subject, $body);
         }
-
-    } else {
-        print("Такой пользователь не существует!");
-        exit();
     }
 }
 
 /**
  * Проверяет наличие подписки
- * @param msqli
+ * @param msqli $link
  * @param string $source_user_id
  * @param string $destination_user_id
  * @return bool
@@ -1448,44 +1430,52 @@ function isset_subscription(mysqli $link, string $source_user_id, string $destin
 
 /**
  * Удаляет подписку из базы
- * @param msqli
+ * @param msqli $link
  * @param array $form
  * @param string $user_id
  */
 function del_subscription(mysqli $link, array $form, string $user_id) {
 
-    $destination_user_id = mysqli_real_escape_string($link, $form['destination-user']);
-    $source_user_id = mysqli_real_escape_string($link, $user_id);
+    if (isset($form['destination-user']) && isset($form['action'])) {
+        if ($form['action'] == "desub") {
 
-    if (isset_user($link, $destination_user_id)) {
-        $sql = 'DELETE FROM `subscriptions` WHERE `source_user_id` = ? AND `destination_user_id` = ?;';
-        $stmt = db_get_prepare_stmt($link, $sql, [$source_user_id, $destination_user_id]);
-        $res = mysqli_stmt_execute($stmt);
+            $destination_user_id = $form['destination-user'];
+            $source_user_id = $user_id;
 
-        if (!$res) {
-            $error = mysqli_error($link);
-            print("Ошибка MySQL: " . $error);
-            exit();
+            if (!isset_user($link, $destination_user_id)) {
+                print("Такой пользователь не существует!");
+                exit();
+            }
+
+            $sql = 'DELETE FROM `subscriptions` WHERE `source_user_id` = ? AND `destination_user_id` = ?;';
+            $stmt = db_get_prepare_stmt($link, $sql, [$source_user_id, $destination_user_id]);
+            $res = mysqli_stmt_execute($stmt);
+
+            if (!$res) {
+                $error = mysqli_error($link);
+                print("Ошибка MySQL: " . $error);
+                exit();
+            }
+
         }
-
-    } else {
-        print("Такой пользователь не существует!");
-        exit();
     }
 }
 
 /**
- * Добавляет лайк в базу
- * @param msqli
+ * Добавляет лайк
+ * @param msqli $link
  * @param string $user_id
- * @param string $post_id
  */
-function add_like(mysqli $link, string $user_id, string $post_id) {
+function add_like(mysqli $link, string $user_id) {
 
-    $user_id = mysqli_real_escape_string($link, $user_id);
-    $post_id = mysqli_real_escape_string($link, $post_id);
+    if (isset($_GET['like_post']) && !empty($_GET['like_post'])) {
 
-    if (isset_post($link, $post_id)) {
+        $post_id = $_GET['like_post'];
+
+        if (!isset_post($link, $post_id)) {
+            print("Такой пост не существует!");
+            exit();
+        }
 
         $sql = 'INSERT INTO `likes` (`user_id`, `post_id`, `created_at`) VALUES (?, ?, NOW());';
         $stmt = db_get_prepare_stmt($link, $sql, [$user_id, $post_id]);
@@ -1497,27 +1487,46 @@ function add_like(mysqli $link, string $user_id, string $post_id) {
             exit();
         }
 
-    } else {
-        print("Такой пост не существует!");
+        header("Location: {$_SERVER['HTTP_REFERER']}");
         exit();
     }
 }
 
 /**
  * Добавляет репост в базу
- * @param msqli
+ * @param msqli $link
  * @param string $user_id
- * @param string $post_id
  */
-function add_repost(mysqli $link, string $user_id, string $post_id) {
+function add_repost(mysqli $link, string $user_id) {
 
-    $user_id = mysqli_real_escape_string($link, $user_id);
-    $post_id = mysqli_real_escape_string($link, $post_id);
+    if (isset($_GET['repost']) && !empty($_GET['repost'])) {
 
-    if (isset_post($link, $post_id)) {
+        $post_id = $_GET['repost'];
 
-        $sql = 'INSERT INTO `reposts` (`created_at`, `user_id`, `post_id`) VALUES (NOW(), ?, ?);';
-        $stmt = db_get_prepare_stmt($link, $sql, [$user_id, $post_id]);
+        if (!isset_post($link, $post_id)) {
+            print("Такой пост не существует!");
+            exit();
+        }
+
+        $post = get_selected_post($link, $post_id);
+
+        if ($post['class_name'] === 'quote') {
+            $post_prepared = [$post['header'], $post['content'], $post['author'], $post['id_type_content']];
+        } else {
+            $post_prepared = [$post['header'], $post['content'], $post['id_type_content']];
+        }
+
+        $tags_array = get_hashtags($link, $post_id);
+        $tags = "";
+
+        foreach($tags_array as $tag) {
+            $tags .= " " . $tag['hashtag'];
+        }
+
+        $post_id_new = add_post($link, $post['class_name'], $post_prepared, $user_id, trim($tags));
+
+        $sql = 'INSERT INTO `reposts` (`created_at`, `user_id_new`, `post_id_old`, `user_id_old`, `post_id_new`) VALUES (NOW(), ?, ?, ?, ?);';
+        $stmt = db_get_prepare_stmt($link, $sql, [$user_id, $post_id, $post['user_id'], $post_id_new]);
         $res = mysqli_stmt_execute($stmt);
 
         if (!$res) {
@@ -1526,15 +1535,14 @@ function add_repost(mysqli $link, string $user_id, string $post_id) {
             exit();
         }
 
-    } else {
-        print("Такой пост не существует!");
+        header("Location: {$_SERVER['HTTP_REFERER']}");
         exit();
     }
 }
 
 /**
  * Возвращает общее кол-во постов
- * @param msqli
+ * @param msqli $link
  * @param string|null $type_content
  * @return int
  */
@@ -1567,11 +1575,13 @@ function get_count_popular_posts(mysqli $link, string $type_content = null): int
 
 /**
  * Проверяет существование пользователя
- * @param msqli
+ * @param msqli $link
  * @param string $user_id
  * @return bool
  */
 function isset_user(mysqli $link, string $user_id): bool {
+
+    $user_id = mysqli_real_escape_string($link, $user_id);
 
     $sql = "SELECT
                 *
@@ -1593,7 +1603,7 @@ function isset_user(mysqli $link, string $user_id): bool {
 
 /**
  * Результат поиска по постам
- * @param msqli
+ * @param msqli $link
  * @param string $search
  * @return array
  */
@@ -1670,4 +1680,24 @@ function get_sorted_class(string $param) : string {
     }
 
     return "";
+}
+
+/**
+ * Отправка письма
+ * @param array $source_user
+ * @param array $destination_user
+ * @param string $subject
+ * @param string $body
+ */
+function send_message($source_user, $destination_user, $subject, $body) {
+
+    $dsn = 'smtp://login:passwd@mail.example.ru:465';
+    $transport = Transport::fromDsn($dsn);
+    $message = new Email();
+    $message->to("{$destination_user['email']}");
+    $message->from("{$source_user['email']}");
+    $message->subject($subject);
+    $message->text($body);
+    $mailer = new Mailer($transport);
+    $mailer->send($message);
 }

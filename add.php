@@ -3,10 +3,6 @@ require_once 'config.php';
 require_once 'helpers.php';
 require_once 'functions.php';
 
-use Symfony\Component\Mailer\Transport;
-use Symfony\Component\Mailer\Mailer;
-use Symfony\Component\Mime\Email;
-
 if (!isset($_SESSION['user'])) {
     header("Location: /");
     exit();
@@ -107,25 +103,14 @@ if (isset($_POST['type-content'])) {
         }, ARRAY_FILTER_USE_KEY);
 
         $post_field_filter['id_type_post'] = get_id_type_post($link, $type_content);
-
-        $post_id = add_post($link, $type_content, $post_field_filter, $user_id);
-
-        add_tag($link, $post["$type_content-tags"], $post_id);
-
+        $post_id = add_post($link, $type_content, $post_field_filter, $user_id, $post["$type_content-tags"]);
         $subscribers = get_subscribers($link, $user_id);
 
         foreach($subscribers as $subscriber) {
-            $dsn = 'smtp://login:passwd@mail.example.ru:465';
-            $transport = Transport::fromDsn($dsn);
-            $message = new Email();
-            $message->to("{$subscriber['email']}");
-            $message->from("{$user['email']}");
-            $message->subject("Новая публикация от пользователя {$user['login']}");
-            $info_post = get_selected_post($link, $post_id);
-            $body = "Здравствуйте, {$subscriber['login']}. Пользователь {$user['login']} только что опубликовал новую запись „{$info_post['header']}“. Посмотрите её на странице пользователя: http://example.ru/profile.php?id={$subscriber['id']}";
-            $message->text($body);
-            $mailer = new Mailer($transport);
-            $mailer->send($message);
+            $subject = "Новая публикация от пользователя {$user['login']}";
+            $body = "Здравствуйте, {$subscriber['login']}. Пользователь {$user['login']} только что опубликовал новую запись „{$post_field_filter['text-heading']}“. Посмотрите её на странице пользователя: http://example.ru/profile.php?id={$subscriber['id']}";
+
+            send_message($user, $subscriber, $subject, $body);
         }
 
         header("Location: post.php?id=" . $post_id);
