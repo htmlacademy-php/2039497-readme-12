@@ -82,11 +82,11 @@ if (isset($_POST['type-content'])) {
     if (!count($errors)) {
 
         if (array_key_exists('userpic-file-photo', $post)) {
-            $file_from = sys_get_temp_dir() . $post['userpic-file-photo'];
-            $file_to = __DIR__ . '/uploads/' . $post['userpic-file-photo'];
+            $file_from = $_FILES['userpic-file-photo']['tmp_name'];
+            $file_to = __DIR__ . '/uploads/' . $_FILES['userpic-file-photo']['name'];
 
-            move_uploaded_file($file_from, $file_to);         // rename ??
-            $post['photo'] = '/uploads/' . $post['photo'];
+            move_uploaded_file($file_from, $file_to);
+            $post['userpic-file-photo'] = '/uploads/' . $post['userpic-file-photo'];
 
         } elseif (array_key_exists('photo', $post)) {
             $file_from = sys_get_temp_dir() . $post['photo'];

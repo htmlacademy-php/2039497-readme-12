@@ -12,7 +12,7 @@ if (isset($_SESSION['user'])) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 	$form = $_POST;
 	$required = ['login', 'password'];
 

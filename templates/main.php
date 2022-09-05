@@ -165,7 +165,7 @@
             <?php endforeach;?>
         </div>
         <div class="popular__page-links">
-            <a class="popular__page-link popular__page-link--prev button button--gray" <?=$cur_page == 1 || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page - 1) > 0 ? ($cur_page - 1) : "1"?>">Предыдущая страница</a>
-            <a class="popular__page-link popular__page-link--next button button--gray" <?=$cur_page == $pages_count || !$pages_count ? 'style="pointer-events: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page + 1) < $pages_count ? ($cur_page + 1) : "$pages_count"?>">Следующая страница</a>
+            <a class="popular__page-link popular__page-link--prev button button--gray" <?=$cur_page == 1 || !$pages_count ? 'style="display: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page - 1) > 0 ? ($cur_page - 1) : "1"?>">Предыдущая страница</a>
+            <a class="popular__page-link popular__page-link--next button button--gray" <?=$cur_page == $pages_count || !$pages_count ? 'style="display: none;"' : '';?> href="<?=$filter_posts . $sorted;?>&page=<?=($cur_page + 1) < $pages_count ? ($cur_page + 1) : "$pages_count"?>">Следующая страница</a>
         </div>
     </div>
