@@ -2,6 +2,8 @@
     <div class="container">
         <h1 class="page__title page__title--adding-post">Добавить публикацию</h1>
     </div>
+
+
     <div class="adding-post container">
         <div class="adding-post__tabs-wrapper tabs">
             <div class="adding-post__tabs filters">
@@ -130,12 +132,18 @@
                                         <span>Перетащите фото сюда</span>
                                     </div>
                                     </div>
-                                    <button class="adding-post__input-file-button form__input-file-button form__input-file-button--photo button" type="button">
+                                    <!-- <button class="adding-post__input-file-button form__input-file-button form__input-file-button--photo button" type="button">
                                     <span>Выбрать фото</span>
                                     <svg class="adding-post__attach-icon form__attach-icon" width="10" height="20">
                                         <use xlink:href="#icon-attach"></use>
                                     </svg>
-                                    </button>
+                                    </button> -->
+                                    <label for="userpic-file-photo" class="adding-post__input-file-button form__input-file-button form__input-file-button--photo button" type="button">
+                                    <span>Выбрать фото</span>
+                                    <svg class="adding-post__attach-icon form__attach-icon" width="10" height="20">
+                                        <use xlink:href="#icon-attach"></use>
+                                    </svg>
+                                    </label>
                                 </div>
                                 <div class="adding-post__file adding-post__file--photo form__file dropzone-previews">
 

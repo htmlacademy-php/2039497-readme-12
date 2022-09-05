@@ -10,7 +10,7 @@ $title = "readme: регистрация";
 $class_main = "page__main--registration";
 $errors = [];
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $required = ['email', 'password', 'login', 'password-repeat'];
     $form = $_POST;
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $file_from = $_FILES['userpic-file']['tmp_name'];
             $file_to = __DIR__ . '/uploads/' . $_FILES['userpic-file']['name'];
             move_uploaded_file($file_from, $file_to);
-            $form['userpic-file'] = '/uploads/' . $_FILES['userpic-file']['name'];
+            $form['userpic-file'] = $_FILES['userpic-file']['name'];
         }
 
         if (add_user($link, $errors, $form)) {

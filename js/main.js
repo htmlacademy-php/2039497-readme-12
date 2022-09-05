@@ -102,6 +102,7 @@
   Dropzone.autoDiscover = false;
 
   if (registrationFileZone) {
+
     var regDropzone = new Dropzone('.registration__file-zone', {
       url: '#',
       maxFiles: 1,
@@ -126,6 +127,7 @@
   }
 
   if (addingPostPhotoFileZone) {
+
     var addingPhotoDropzone = new Dropzone('.adding-post__file-zone--photo', {
       url: '#',
       maxFiles: 1,

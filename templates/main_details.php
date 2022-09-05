@@ -81,7 +81,7 @@
                 <span class="visually-hidden">количество репостов</span>
               </a>
             </div>
-            <span class="post__view">500 просмотров</span>
+            <span class="post__view"><?=$post['count_views'];?></span>
         </div>
         <ul class="post__tags">
             <?php foreach($post['hashtags'] as $hashtag):?>
